@@ -64,6 +64,7 @@ from app.database.repositories.extracted_field_repository import ExtractedFieldR
 from app.database.repositories.feedback_repository import FeedbackRepository
 from app.database.repositories.ocr_repository import OCRRepository
 from app.document_analysis.constants import EXPECTED_FIELDS
+from app.feedback.constants import ORIGIN_LOW_CONFIDENCE_REVIEW
 
 logger = logging.getLogger(__name__)
 
@@ -566,6 +567,13 @@ class ConfidenceService:
                 human_value=corrected_value or "",
                 ocr_value=original_value,
                 confidence_score=original_confidence,
+                document_id=field.ocr_result.document_id,
+                ocr_result_id=field.ocr_result_id,
+                normalized_value=field.normalized_value,
+                confidence_source=field.confidence_source,
+                reviewer=reviewer_name,
+                decision=ReviewDecisionType.CORRECTED.value,
+                origin=ORIGIN_LOW_CONFIDENCE_REVIEW,
             )
             self._audit.create(
                 application_id=application_id,

@@ -16,6 +16,7 @@ from sqlalchemy.orm import Session
 
 from app.database.models.enums import ReviewDecision
 from app.document_processing.constants import ProcessingMethod
+from app.feedback.constants import ORIGIN_FINAL_HUMAN_REVIEW
 from app.human_verification.constants import (
     ACTION_APPLICATION_APPROVED,
     ACTION_APPLICATION_CORRECTED,
@@ -414,6 +415,14 @@ class HumanVerificationService:
                     human_value=correction.corrected_value,
                     ocr_value=field.extracted_value,
                     confidence_score=field.confidence_score,
+                    document_id=field.ocr_result.document_id,
+                    ocr_result_id=field.ocr_result_id,
+                    normalized_value=field.normalized_value,
+                    confidence_source=field.confidence_source,
+                    correction_reason=correction.reason,
+                    reviewer=request.reviewer_name,
+                    decision=request.decision.value,
+                    origin=ORIGIN_FINAL_HUMAN_REVIEW,
                 )
                 logger.info(
                     "Field %s corrected for application id=%s "

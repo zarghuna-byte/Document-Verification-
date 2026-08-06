@@ -13,6 +13,7 @@ from app.completeness.routes import router as completeness_router
 from app.confidence.routes import router as confidence_router
 from app.document_analysis.routes import router as document_analysis_router
 from app.document_processing.routes import router as document_processing_router
+from app.feedback.routes import router as feedback_router
 from app.human_verification.routes import router as human_verification_router
 from app.normalization.routes import router as normalization_router
 from app.reports.routes import router as reports_router
@@ -32,5 +33,6 @@ api_router.include_router(normalization_router)
 api_router.include_router(rule_engine_router)
 api_router.include_router(reports_router)
 api_router.include_router(human_verification_router)
+api_router.include_router(feedback_router)
 
 __all__ = ["api_router"]
