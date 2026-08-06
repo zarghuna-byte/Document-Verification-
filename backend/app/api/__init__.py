@@ -11,6 +11,7 @@ from fastapi import APIRouter
 from app.api.health import router as health_router
 from app.completeness.routes import router as completeness_router
 from app.confidence.routes import router as confidence_router
+from app.continuous_learning.routes import router as continuous_learning_router
 from app.document_analysis.routes import router as document_analysis_router
 from app.document_processing.routes import router as document_processing_router
 from app.feedback.routes import router as feedback_router
@@ -34,5 +35,6 @@ api_router.include_router(rule_engine_router)
 api_router.include_router(reports_router)
 api_router.include_router(human_verification_router)
 api_router.include_router(feedback_router)
+api_router.include_router(continuous_learning_router)
 
 __all__ = ["api_router"]
