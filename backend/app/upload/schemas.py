@@ -55,6 +55,20 @@ class ApplicationCreateResponse(BaseModel):
     application: ApplicationRead
 
 
+class ApplicationListResponse(BaseModel):
+    """Paginated list of applications."""
+
+    items: list[ApplicationRead]
+    total: int
+
+
+class ApplicationDetailResponse(BaseModel):
+    """Response returned when fetching a single application."""
+
+    message: str = Field(examples=["Application found"])
+    application: ApplicationRead
+
+
 class DocumentUploadResponse(BaseModel):
     """Response returned after a successful document upload."""
 

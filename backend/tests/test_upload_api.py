@@ -374,3 +374,76 @@ def test_create_application(client):
     assert application["created_by"] == "reviewer.alex"
     assert application["status"] == "SUBMITTED"
     assert "submitted_at" in application
+
+
+# --- Application list & detail ---------------------------------------------
+
+
+def test_list_applications(client):
+    first = client.post(f"{API}/applications", json={"created_by": "alice"}).json()["application"]
+    second = client.post(f"{API}/applications", json={"created_by": "bob"}).json()["application"]
+
+    response = client.get(f"{API}/applications")
+
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["total"] == 2
+    # Ordered by submission date descending: the newest application first.
+    assert [item["id"] for item in body["items"]] == [second["id"], first["id"]]
+
+
+def test_list_applications_empty(client):
+    response = client.get(f"{API}/applications")
+
+    assert response.status_code == 200
+    assert response.json() == {"items": [], "total": 0}
+
+
+def test_list_applications_status_filter(client):
+    client.post(f"{API}/applications", json={"created_by": "alice"})
+
+    response = client.get(f"{API}/applications", params={"status": "APPROVED"})
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["total"] == 0
+    assert body["items"] == []
+
+
+def test_list_applications_pagination(client):
+    client.post(f"{API}/applications", json={"created_by": "alice"})
+    client.post(f"{API}/applications", json={"created_by": "bob"})
+
+    response = client.get(f"{API}/applications", params={"offset": 1, "limit": 1})
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["total"] == 2
+    assert len(body["items"]) == 1
+
+
+def test_list_applications_invalid_status(client):
+    response = client.get(f"{API}/applications", params={"status": "NONSENSE"})
+
+    assert response.status_code == 422, response.text
+
+
+def test_get_application(client):
+    application_id = create_application(client)
+
+    response = client.get(f"{API}/applications/{application_id}")
+
+    assert response.status_code == 200, response.text
+    application = response.json()["application"]
+    assert application["id"] == application_id
+    assert application["created_by"] == "tester"
+    assert application["status"] == "SUBMITTED"
+    assert "submitted_at" in application
+    assert "updated_at" in application
+
+
+def test_get_application_missing(client):
+    response = client.get(f"{API}/applications/999999")
+
+    assert response.status_code == 404, response.text
+    assert "not found" in response.json()["detail"].lower()

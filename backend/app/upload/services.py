@@ -17,7 +17,7 @@ from sqlalchemy.orm import Session
 from app.core.config import get_settings
 from app.database.models.application import Application
 from app.database.models.document import Document
-from app.database.models.enums import DocumentProcessingStatus, DocumentType
+from app.database.models.enums import ApplicationStatus, DocumentProcessingStatus, DocumentType
 from app.database.repositories.application_repository import ApplicationRepository
 from app.database.repositories.document_repository import DocumentRepository
 from app.upload.constants import READ_CHUNK_BYTES
@@ -67,6 +67,43 @@ class UploadService:
         application = self._applications.create(created_by=created_by, notes=notes)
         logger.info("Created application id=%s by %r", application.id, created_by)
         return application
+
+    def list_applications(
+        self,
+        *,
+        offset: int = 0,
+        limit: int = 50,
+        status: ApplicationStatus | None = None,
+    ) -> tuple[list[Application], int]:
+        """List applications, optionally filtered by status.
+
+        Args:
+            offset: Number of applications to skip.
+            limit: Maximum number of applications to return.
+            status: When given, only return applications in this status.
+
+        Returns:
+            A tuple of ``(applications, total)`` where ``total`` is the
+            unpaginated count for the current filter.
+        """
+        applications = self._applications.list(offset=offset, limit=limit, status=status)
+        statement = select(func.count()).select_from(Application)
+        if status is not None:
+            statement = statement.where(Application.status == status)
+        total = self._db.scalar(statement) or 0
+        logger.info("Listed %s applications (total=%s)", len(applications), total)
+        return list(applications), total
+
+    def get_application(self, application_id: int) -> Application:
+        """Return an application or raise ``ApplicationNotFoundException``.
+
+        Args:
+            application_id: Id of the application to fetch.
+
+        Returns:
+            The matching application.
+        """
+        return self._get_application(application_id)
 
     def upload(
         self,

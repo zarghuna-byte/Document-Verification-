@@ -15,11 +15,13 @@ from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
 from app.database.connection import get_db
-from app.database.models.enums import DocumentType
+from app.database.models.enums import ApplicationStatus, DocumentType
 from app.upload.exceptions import MissingFileException, UploadError
 from app.upload.schemas import (
     ApplicationCreateRequest,
     ApplicationCreateResponse,
+    ApplicationDetailResponse,
+    ApplicationListResponse,
     DocumentDeleteResponse,
     DocumentListResponse,
     DocumentReplaceResponse,
@@ -101,6 +103,78 @@ def create_application(
     )
     return ApplicationCreateResponse(
         message="Application created successfully",
+        application=application,
+    )
+
+
+@router.get(
+    "/applications",
+    response_model=ApplicationListResponse,
+    summary="List applications",
+    description=(
+        "Lists applications ordered by submission date, optionally filtered by "
+        "status and paginated with offset/limit."
+    ),
+    responses={422: _ERROR_RESPONSES[422]},
+)
+@_handle_upload_errors
+def list_applications(
+    offset: Annotated[int, Query(ge=0)] = 0,
+    limit: Annotated[int, Query(ge=1, le=100)] = 50,
+    status: ApplicationStatus | None = Query(
+        default=None,
+        description="When given, only return applications in this status.",
+    ),
+    db: _GET_DB = ...,
+) -> ApplicationListResponse:
+    """List applications, optionally filtered by status.
+
+    Args:
+        offset: Number of applications to skip.
+        limit: Maximum number of applications to return.
+        status: Optional status filter.
+        db: Active database session.
+
+    Returns:
+        The matching applications and the unpaginated total.
+    """
+    service = _service(db)
+    applications, total = service.list_applications(
+        offset=offset,
+        limit=limit,
+        status=status,
+    )
+    return ApplicationListResponse(items=applications, total=total)
+
+
+@router.get(
+    "/applications/{application_id}",
+    response_model=ApplicationDetailResponse,
+    summary="Get an application",
+    description="Fetches the details of a single application.",
+    responses={404: _ERROR_RESPONSES[404]},
+)
+@_handle_upload_errors
+def get_application(
+    application_id: int,
+    db: _GET_DB = ...,
+) -> ApplicationDetailResponse:
+    """Fetch a single application by id.
+
+    Args:
+        application_id: Id of the application to fetch.
+        db: Active database session.
+
+    Returns:
+        The application wrapped in a confirmation message.
+
+    Raises:
+        HTTPException: 404 when the application does not exist.
+    """
+    service = _service(db)
+    application = service.get_application(application_id)
+    return ApplicationDetailResponse(
+        message="Application found",
         application=application,
     )
 

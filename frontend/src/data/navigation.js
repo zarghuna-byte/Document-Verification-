@@ -45,9 +45,20 @@ export const NAV_ITEMS = [
 /**
  * Look up a navigation entry by its route path.
  *
+ * Nested module routes (e.g. "/applications/12/upload") are matched against the
+ * nav path as a path boundary prefix so the navbar always reflects the parent
+ * module. Exact matches win; the Dashboard entry is the fallback.
+ *
  * @param {string} path The current location pathname.
  * @returns {object} The matching nav entry, defaulting to Dashboard.
  */
 export function findNavItem(path) {
-  return NAV_ITEMS.find((item) => item.path === path) ?? NAV_ITEMS[0];
+  const exact = NAV_ITEMS.find((item) => item.path === path);
+  if (exact) {
+    return exact;
+  }
+  const prefixed = NAV_ITEMS.filter(
+    (item) => item.path !== '/' && path.startsWith(`${item.path}/`)
+  );
+  return prefixed.sort((a, b) => b.path.length - a.path.length)[0] ?? NAV_ITEMS[0];
 }
