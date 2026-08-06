@@ -1,0 +1,72 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+.installed.cfg
+.python-version
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+virtualenv/
+
+# FastAPI / uvicorn
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# PostgreSQL
+*.db
+*.sqlite3
+pg_log/
+postgres_data/
+
+# React / Node frontend
+node_modules/
+frontend/dist/
+frontend/build/
+frontend/.env.local
+npm-debug.log*
+yarn-error.log*
+
+# Docker
+docker-compose.override.yml
+*.pid
+
+# VS Code / IDE
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Logs
+logs/
+*.log
+*.log.*
+
+# Uploads / storage
+storage/
+uploads/
+media/
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+
+# OS / misc
+Thumbs.db
+*.tmp
+.cache/
