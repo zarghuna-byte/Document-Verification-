@@ -53,6 +53,7 @@ class HumanReview(Base):
     )
     decision: Mapped[ReviewDecision] = mapped_column(nullable=False)
     comments: Mapped[str | None] = mapped_column(Text)
+    rejection_reason: Mapped[str | None] = mapped_column(Text)
 
     application: Mapped[Application] = relationship(back_populates="human_reviews")
     corrections: Mapped[list[HumanCorrection]] = relationship(

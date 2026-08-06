@@ -19,6 +19,7 @@ class ApplicationStatus(str, Enum):
     PENDING_REVIEW = "PENDING_REVIEW"
     APPROVED = "APPROVED"
     REJECTED = "REJECTED"
+    CORRECTED = "CORRECTED"
 
 
 class DocumentType(str, Enum):

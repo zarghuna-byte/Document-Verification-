@@ -31,6 +31,7 @@ class HumanReviewRepository(BaseRepository[HumanReview]):
         reviewer_name: str,
         decision: ReviewDecision,
         comments: str | None = None,
+        rejection_reason: str | None = None,
     ) -> HumanReview:
         """Create and persist a new human review.
 
@@ -39,6 +40,7 @@ class HumanReviewRepository(BaseRepository[HumanReview]):
             reviewer_name: Name of the reviewer.
             decision: Approve, correct or reject the application.
             comments: Optional free-form notes.
+            rejection_reason: Mandatory explanation for a reject decision.
 
         Returns:
             The persisted human review.
@@ -48,6 +50,7 @@ class HumanReviewRepository(BaseRepository[HumanReview]):
             reviewer_name=reviewer_name,
             decision=decision,
             comments=comments,
+            rejection_reason=rejection_reason,
         )
         self._db.add(review)
         return self._commit_and_refresh(review)
