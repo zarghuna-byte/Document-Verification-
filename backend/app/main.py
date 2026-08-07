@@ -26,6 +26,10 @@ OPENAPI_TAGS = [
         "name": "system",
         "description": "Health and operational endpoints.",
     },
+    {
+        "name": "authentication",
+        "description": "Sign in, session, refresh and sign-out endpoints.",
+    },
 ]
 
 
