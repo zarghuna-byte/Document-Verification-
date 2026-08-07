@@ -6,33 +6,6 @@
   gap: 20px;
 }
 
-.center {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 64px 0;
-}
-
-.backLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  align-self: flex-start;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--color-text-muted);
-  transition: color var(--transition);
-}
-
-.backLink:hover {
-  color: var(--color-primary-dark);
-}
-
-.backLink svg {
-  width: 16px;
-  height: 16px;
-}
-
 .header {
   display: flex;
   flex-direction: column;
@@ -43,6 +16,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 .title {
@@ -104,26 +78,97 @@
   line-height: 1.5;
 }
 
-.uploadBtn {
+.actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.primaryBtn,
+.secondaryBtn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  align-self: flex-start;
   padding: 13px 24px;
   border-radius: var(--radius-md);
-  background: var(--color-primary);
-  color: #fff;
   font-size: 15px;
   font-weight: 600;
   transition: background-color var(--transition);
 }
 
-.uploadBtn:hover {
+.primaryBtn {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.primaryBtn:hover {
   background: var(--color-primary-dark);
 }
 
-.uploadBtn svg {
+.secondaryBtn {
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text);
+}
+
+.secondaryBtn:hover {
+  background: var(--color-surface-secondary);
+}
+
+.primaryBtn svg,
+.secondaryBtn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.placeholders {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 767px) {
+  .placeholders {
+    grid-template-columns: 1fr;
+  }
+}
+
+.placeholder {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 24px;
+  background: var(--color-card);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.placeholderIcon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-secondary);
+  color: var(--color-text-muted);
+}
+
+.placeholderIcon svg {
   width: 20px;
   height: 20px;
+}
+
+.placeholderTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.placeholderMessage {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-text-muted);
 }

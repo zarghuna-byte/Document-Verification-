@@ -2,14 +2,15 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { createApplication, listApplications } from '../services/applications';
 import { getApiErrorMessage } from '../utils/apiError';
+import { sortBy } from '../utils/sort';
 
 /**
  * Load and manage the applications list.
  *
  * The status filter is applied server-side (the API receives it as a query
- * param); the search term is filtered client-side over the fetched page by
- * application id and creator. All failures surface as a friendly message that
- * the page can display or toast.
+ * param); the search term and column sorting are applied client-side over the
+ * fetched page. Search covers application id, creator and notes. All failures
+ * surface as a friendly message the page can display or toast.
  */
 export function useApplications() {
   const [applications, setApplications] = useState([]);
@@ -18,6 +19,8 @@ export function useApplications() {
   const [error, setError] = useState(null);
   const [statusFilter, setStatusFilter] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [sortKey, setSortKey] = useState('submitted_at');
+  const [sortDir, setSortDir] = useState('desc');
 
   const load = useCallback(async (status) => {
     setLoading(true);
@@ -47,9 +50,12 @@ export function useApplications() {
     }
     return (
       String(application.id).includes(term) ||
-      application.created_by.toLowerCase().includes(term)
+      application.created_by.toLowerCase().includes(term) ||
+      (application.notes ?? '').toLowerCase().includes(term)
     );
   });
+
+  const visibleApplications = sortBy(filteredApplications, sortKey, sortDir);
 
   const handleStatusChange = useCallback((value) => {
     setStatusFilter(value);
@@ -57,6 +63,11 @@ export function useApplications() {
 
   const handleSearchChange = useCallback((value) => {
     setSearchTerm(value);
+  }, []);
+
+  const handleSortChange = useCallback((key, direction) => {
+    setSortKey(key);
+    setSortDir(direction);
   }, []);
 
   const create = useCallback(async ({ createdBy, notes }) => {
@@ -69,15 +80,18 @@ export function useApplications() {
   }, []);
 
   return {
-    applications: filteredApplications,
+    applications: visibleApplications,
     total,
     loading,
     error,
     reload: () => load(statusFilter),
     searchTerm,
     statusFilter,
+    sortKey,
+    sortDir,
     onSearchChange: handleSearchChange,
     onStatusChange: handleStatusChange,
+    onSortChange: handleSortChange,
     create,
   };
 }

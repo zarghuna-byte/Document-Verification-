@@ -1,19 +1,20 @@
 /**
  * Status labels and colour variants.
  *
- * The `variant` values map to StatusChip CSS classes. Application statuses
- * mirror the backend `ApplicationStatus` enum; document statuses cover the
- * backend `DocumentProcessingStatus` values plus client-side states
- * (MISSING and UPLOADING) that never leave the browser.
+ * The `variant` values map to StatusChip CSS classes (used by the documents
+ * module); the `color` values map to ApplicationStatusBadge CSS classes.
+ * Application statuses mirror the backend `ApplicationStatus` enum; document
+ * statuses cover the backend `DocumentProcessingStatus` values plus
+ * client-side states (MISSING and UPLOADING) that never leave the browser.
  */
 
 export const APPLICATION_STATUSES = [
-  { value: 'SUBMITTED', label: 'Submitted', variant: 'info' },
-  { value: 'PROCESSING', label: 'Processing', variant: 'info' },
-  { value: 'PENDING_REVIEW', label: 'Pending Review', variant: 'warning' },
-  { value: 'APPROVED', label: 'Approved', variant: 'success' },
-  { value: 'REJECTED', label: 'Rejected', variant: 'danger' },
-  { value: 'CORRECTED', label: 'Corrected', variant: 'neutral' },
+  { value: 'SUBMITTED', label: 'Pending', variant: 'info', color: 'blue' },
+  { value: 'PROCESSING', label: 'Processing', variant: 'info', color: 'sky' },
+  { value: 'PENDING_REVIEW', label: 'Under Review', variant: 'warning', color: 'orange' },
+  { value: 'APPROVED', label: 'Approved', variant: 'success', color: 'green' },
+  { value: 'REJECTED', label: 'Rejected', variant: 'danger', color: 'red' },
+  { value: 'CORRECTED', label: 'Corrected', variant: 'neutral', color: 'purple' },
 ];
 
 export const DOCUMENT_STATUSES = [
@@ -37,6 +38,7 @@ function findStatus(statuses, value) {
   return statuses.find((status) => status.value === value) ?? {
     label: value ?? 'Unknown',
     variant: 'neutral',
+    color: 'gray',
   };
 }
 

@@ -1,21 +1,37 @@
 import { Link, useParams } from 'react-router-dom';
 
-import { ArrowLeft, UploadCloud } from 'lucide-react';
+import { ArrowLeft, FileText, History, ShieldCheck, UploadCloud } from 'lucide-react';
 
+import ApplicationStatusBadge from '../../components/applications/ApplicationStatusBadge/ApplicationStatusBadge';
+import { ApplicationCardSkeleton } from '../../components/applications/ApplicationSkeleton/ApplicationSkeleton';
 import ErrorState from '../../components/common/ErrorState/ErrorState';
-import Spinner from '../../components/common/Spinner/Spinner';
-import StatusChip from '../../components/common/StatusChip/StatusChip';
 import { useApplication } from '../../hooks/useApplication';
-import { getApplicationStatus } from '../../data/statuses';
 import { formatDate, formatDateTime } from '../../utils/format';
 import styles from './ApplicationDetailsPage.module.css';
+
+/**
+ * Placeholder section for a future module (documents, verification, activity).
+ * Renders an empty state only; no fake data is ever shown.
+ */
+function PlaceholderCard({ icon: Icon, title, message }) {
+  return (
+    <section className={styles.placeholder} aria-label={title}>
+      <div className={styles.placeholderIcon} aria-hidden="true">
+        <Icon />
+      </div>
+      <h3 className={styles.placeholderTitle}>{title}</h3>
+      <p className={styles.placeholderMessage}>{message}</p>
+    </section>
+  );
+}
 
 /**
  * Application details page.
  *
  * Shows the application's information in a card: status badge, submission and
- * update dates, creator and notes, plus a prominent button that leads to the
- * document upload page.
+ * update dates, creator and notes, with a primary action to upload documents
+ * and a secondary action back to the list. Placeholder cards signal where the
+ * documents, verification status and activity feeds will live.
  */
 function ApplicationDetailsPage() {
   const { applicationId } = useParams();
@@ -23,8 +39,8 @@ function ApplicationDetailsPage() {
 
   if (loading) {
     return (
-      <div className={styles.center} aria-busy="true">
-        <Spinner size="medium" />
+      <div className={styles.page} aria-busy="true">
+        <ApplicationCardSkeleton />
       </div>
     );
   }
@@ -33,7 +49,7 @@ function ApplicationDetailsPage() {
     return (
       <div className={styles.page}>
         <ErrorState message={error ?? 'Application not found.'} onRetry={reload} />
-        <Link to="/applications" className={styles.backLink}>
+        <Link to="/applications" className={styles.secondaryBtn}>
           <ArrowLeft aria-hidden="true" />
           Back to Applications
         </Link>
@@ -41,19 +57,12 @@ function ApplicationDetailsPage() {
     );
   }
 
-  const status = getApplicationStatus(application.status);
-
   return (
     <div className={styles.page}>
-      <Link to="/applications" className={styles.backLink}>
-        <ArrowLeft aria-hidden="true" />
-        Back to Applications
-      </Link>
-
       <header className={styles.header}>
         <div className={styles.headingRow}>
           <h2 className={styles.title}>Application #{application.id}</h2>
-          <StatusChip label={status.label} variant={status.variant} />
+          <ApplicationStatusBadge status={application.status} />
         </div>
         <p className={styles.subtitle}>Financial document verification case.</p>
       </header>
@@ -82,11 +91,38 @@ function ApplicationDetailsPage() {
           </div>
         </div>
 
-        <Link to={`/applications/${application.id}/upload`} className={styles.uploadBtn}>
-          <UploadCloud aria-hidden="true" />
-          Upload Documents
-        </Link>
+        <div className={styles.actions}>
+          <Link
+            to={`/applications/${application.id}/upload`}
+            className={styles.primaryBtn}
+          >
+            <UploadCloud aria-hidden="true" />
+            Upload Documents
+          </Link>
+          <Link to="/applications" className={styles.secondaryBtn}>
+            <ArrowLeft aria-hidden="true" />
+            Back to Applications
+          </Link>
+        </div>
       </section>
+
+      <div className={styles.placeholders}>
+        <PlaceholderCard
+          icon={FileText}
+          title="Documents"
+          message="No documents have been uploaded for this application yet."
+        />
+        <PlaceholderCard
+          icon={ShieldCheck}
+          title="Verification Status"
+          message="No verification has been started for this application yet."
+        />
+        <PlaceholderCard
+          icon={History}
+          title="Recent Activity"
+          message="No activity has been recorded for this application yet."
+        />
+      </div>
     </div>
   );
 }

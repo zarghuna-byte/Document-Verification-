@@ -1,30 +1,79 @@
-import { Eye, UploadCloud } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 
-import StatusChip from '../../common/StatusChip/StatusChip';
-import { getApplicationStatus } from '../../../data/statuses';
-import { formatDate } from '../../../utils/format';
+import ApplicationRow from '../ApplicationRow/ApplicationRow';
 import styles from './ApplicationTable.module.css';
 
 /**
- * Read-only table of applications.
+ * Sortable columns and the field each one orders by. Exported so the
+ * applications hook can reuse the same key space.
+ */
+export const SORTABLE_COLUMNS = [
+  { key: 'id', label: 'Application ID' },
+  { key: 'submitted_at', label: 'Submission Date' },
+  { key: 'updated_at', label: 'Last Updated' },
+];
+
+/**
+ * Table of applications with sortable columns.
  *
- * Each row links to the application details page and to the document upload
- * page. Dates are localised and the status renders as a coloured chip.
+ * Renders a full table on desktop and collapses each row into a card on small
+ * screens (see ApplicationRow). Column headers toggle sort order through
+ * `onSortChange`; the active column reports its direction via `aria-sort`.
  *
  * @param {object} props
- * @param {Array<object>} props.applications Application objects to display.
+ * @param {Array<object>} props.applications Applications to display.
+ * @param {string} props.sortKey Currently active sort field.
+ * @param {'asc'|'desc'} props.sortDir Current sort direction.
+ * @param {Function} props.onSortChange Callback with `(key, direction)`.
  */
-function ApplicationTable({ applications }) {
+function ApplicationTable({ applications, sortKey, sortDir, onSortChange }) {
+  const toggleSort = (key) => {
+    if (key === sortKey) {
+      onSortChange(key, sortDir === 'asc' ? 'desc' : 'asc');
+      return;
+    }
+    onSortChange(key, 'desc');
+  };
+
+  const ariaSortFor = (key) => {
+    if (key !== sortKey) {
+      return 'none';
+    }
+    return sortDir === 'asc' ? 'ascending' : 'descending';
+  };
+
+  const SortIcon = ({ column }) => {
+    if (column !== sortKey) {
+      return <ArrowUpDown aria-hidden="true" />;
+    }
+    return sortDir === 'asc' ? (
+      <ArrowUp aria-hidden="true" />
+    ) : (
+      <ArrowDown aria-hidden="true" />
+    );
+  };
+
   return (
     <div className={styles.tableWrap}>
       <table className={styles.table}>
         <thead>
           <tr>
-            <th scope="col">Application ID</th>
-            <th scope="col">Status</th>
-            <th scope="col">Submission Date</th>
-            <th scope="col">Last Updated</th>
+            {SORTABLE_COLUMNS.map((column) => (
+              <th
+                key={column.key}
+                scope="col"
+                aria-sort={ariaSortFor(column.key)}
+              >
+                <button
+                  type="button"
+                  className={styles.sortButton}
+                  onClick={() => toggleSort(column.key)}
+                >
+                  {column.label}
+                  <SortIcon column={column.key} />
+                </button>
+              </th>
+            ))}
             <th scope="col">Created By</th>
             <th scope="col" className={styles.actionsHeader}>
               Actions
@@ -32,44 +81,9 @@ function ApplicationTable({ applications }) {
           </tr>
         </thead>
         <tbody>
-          {applications.map((application) => {
-            const status = getApplicationStatus(application.status);
-            return (
-              <tr key={application.id}>
-                <td className={styles.idCell}>
-                  <Link to={`/applications/${application.id}`} className={styles.idLink}>
-                    #{application.id}
-                  </Link>
-                </td>
-                <td>
-                  <StatusChip label={status.label} variant={status.variant} />
-                </td>
-                <td>{formatDate(application.submitted_at)}</td>
-                <td>{formatDate(application.updated_at)}</td>
-                <td>{application.created_by}</td>
-                <td>
-                  <div className={styles.actions}>
-                    <Link
-                      to={`/applications/${application.id}`}
-                      className={styles.actionLink}
-                      aria-label={`View application ${application.id}`}
-                    >
-                      <Eye aria-hidden="true" />
-                      View
-                    </Link>
-                    <Link
-                      to={`/applications/${application.id}/upload`}
-                      className={styles.actionLink}
-                      aria-label={`Upload documents for application ${application.id}`}
-                    >
-                      <UploadCloud aria-hidden="true" />
-                      Upload Documents
-                    </Link>
-                  </div>
-                </td>
-              </tr>
-            );
-          })}
+          {applications.map((application) => (
+            <ApplicationRow key={application.id} application={application} />
+          ))}
         </tbody>
       </table>
     </div>
