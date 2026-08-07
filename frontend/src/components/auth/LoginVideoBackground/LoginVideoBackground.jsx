@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import video from '../../../assets/Create_a_seamless_premium_loo.mp4';
+import video from '../../../assets/8387491-uhd_3840_2160_30fps.mp4';
 import { usePrefersReducedMotion } from '../../../hooks/usePrefersReducedMotion';
 import styles from './LoginVideoBackground.module.css';
 
