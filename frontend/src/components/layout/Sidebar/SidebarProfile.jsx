@@ -1,11 +1,13 @@
 import { LogOut } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../../../hooks/useAuth';
 import { USER_PROFILE } from '../../../data/dashboard';
 import styles from './Sidebar.module.css';
 
 function SidebarProfile() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const name = user?.name ?? USER_PROFILE.name;
   const initials =
     user?.initials ??
@@ -16,6 +18,11 @@ function SidebarProfile() {
       .slice(0, 2)
       .join('')
       .toUpperCase();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login', { replace: true });
+  };
 
   return (
     <>
@@ -31,7 +38,13 @@ function SidebarProfile() {
           </span>
         </div>
       </div>
-      <button className={styles.logout} type="button" title="Logout" aria-label="Logout">
+      <button
+        className={styles.logout}
+        type="button"
+        title="Logout"
+        aria-label="Logout"
+        onClick={handleLogout}
+      >
         <LogOut className={styles.logoutIcon} aria-hidden="true" />
         <span className={styles.navLabel}>Logout</span>
       </button>
