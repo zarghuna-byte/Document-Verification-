@@ -1,16 +1,17 @@
 import { Link, useParams } from 'react-router-dom';
 
-import { ArrowLeft, FileText, History, ShieldCheck, UploadCloud } from 'lucide-react';
+import { ArrowLeft, History, ShieldCheck, UploadCloud } from 'lucide-react';
 
 import ApplicationStatusBadge from '../../components/applications/ApplicationStatusBadge/ApplicationStatusBadge';
 import { ApplicationCardSkeleton } from '../../components/applications/ApplicationSkeleton/ApplicationSkeleton';
+import DocumentsSection from '../../components/documents/DocumentsSection/DocumentsSection';
 import ErrorState from '../../components/common/ErrorState/ErrorState';
 import { useApplication } from '../../hooks/useApplication';
 import { formatDate, formatDateTime } from '../../utils/format';
 import styles from './ApplicationDetailsPage.module.css';
 
 /**
- * Placeholder section for a future module (documents, verification, activity).
+ * Neutral placeholder section for a future module (verification, activity).
  * Renders an empty state only; no fake data is ever shown.
  */
 function PlaceholderCard({ icon: Icon, title, message }) {
@@ -106,12 +107,9 @@ function ApplicationDetailsPage() {
         </div>
       </section>
 
+      <DocumentsSection applicationId={application.id} />
+
       <div className={styles.placeholders}>
-        <PlaceholderCard
-          icon={FileText}
-          title="Documents"
-          message="No documents have been uploaded for this application yet."
-        />
         <PlaceholderCard
           icon={ShieldCheck}
           title="Verification Status"

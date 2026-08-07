@@ -22,9 +22,11 @@ import styles from './UploadDocumentsPage.module.css';
  * Document upload page for one application.
  *
  * Left column holds the document checklist and the shared upload dropzone;
- * right column holds the summary panel. Uploading, replacing and deleting are
- * confirmed, toasted and surfaced per-row via the documents hook. "Continue"
- * stays disabled until every required document has been uploaded.
+ * right column holds the summary panel. Choosing a file stages it in the
+ * dropzone; the employee confirms with the explicit Upload button. Uploading,
+ * replacing and deleting are confirmed, toasted and surfaced per-row via the
+ * documents hook. The session tally reports how many files uploaded or failed,
+ * and "Continue to Document Completeness" opens the completeness module.
  */
 function UploadDocumentsPage() {
   const { applicationId } = useParams();
@@ -37,22 +39,21 @@ function UploadDocumentsPage() {
   const [activeType, setActiveType] = useState(null);
   const [replaceConfirmType, setReplaceConfirmType] = useState(null);
   const [deleteConfirmType, setDeleteConfirmType] = useState(null);
+  const [sessionTally, setSessionTally] = useState({ uploaded: 0, failed: 0 });
 
   const activeConfig = activeType ? getDocumentTypeConfig(activeType) : null;
   const activePending = activeType ? pending[activeType] : null;
 
-  const handleFileSelected = async (file) => {
+  const handleUpload = async (file) => {
     if (!activeType) {
       return;
     }
     const result = await uploadFile({ documentType: activeType, file });
     if (result.ok) {
-      toast.success(
-        `${activeConfig.label} ${
-          findDocument(activeType) ? 'replaced' : 'uploaded'
-        } successfully.`
-      );
+      setSessionTally((prev) => ({ ...prev, uploaded: prev.uploaded + 1 }));
+      toast.success(`${activeConfig.label} uploaded successfully.`);
     } else {
+      setSessionTally((prev) => ({ ...prev, failed: prev.failed + 1 }));
       toast.error(result.error);
     }
   };
@@ -102,7 +103,7 @@ function UploadDocumentsPage() {
       </header>
 
       {error ? (
-        <ErrorState message={error} onRetry={reload} />
+        <ErrorState message="Unable to load documents." onRetry={reload} />
       ) : (
         <div className={styles.layout}>
           <div className={styles.main}>
@@ -118,14 +119,15 @@ function UploadDocumentsPage() {
             <UploadDropzone
               targetLabel={activeConfig?.label ?? null}
               busy={Boolean(activePending)}
-              onFileSelected={handleFileSelected}
+              onUpload={handleUpload}
             />
           </div>
 
           <SummaryPanel
             documents={documents}
             requiredTypes={REQUIRED_DOCUMENT_TYPES}
-            onContinue={() => navigate(`/applications/${applicationId}`)}
+            sessionTally={sessionTally}
+            onContinue={() => navigate('/completeness')}
           />
         </div>
       )}

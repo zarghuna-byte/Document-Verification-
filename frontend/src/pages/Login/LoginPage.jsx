@@ -3,6 +3,7 @@ import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 
 import AuthCard from '../../components/auth/AuthCard/AuthCard';
 import LoadingScreen from '../../components/auth/LoadingScreen/LoadingScreen';
+import LoginVideoBackground from '../../components/auth/LoginVideoBackground/LoginVideoBackground';
 import PasswordField from '../../components/auth/PasswordField/PasswordField';
 import Spinner from '../../components/common/Spinner/Spinner';
 import { useAuth } from '../../hooks/useAuth';
@@ -83,6 +84,7 @@ function LoginPage() {
     <AuthCard
       title="Sign In"
       subtitle="Secure Internal Employee Portal"
+      background={<LoginVideoBackground />}
       footer={
         <p className={styles.notice}>
           Authorized finance personnel only. All activity is logged and monitored.

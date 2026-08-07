@@ -82,3 +82,18 @@ export function replaceDocument({ applicationId, documentId, documentType, file,
 export function deleteDocument({ applicationId, documentId }) {
   return api.delete(`/applications/${applicationId}/documents/${documentId}`).then(() => undefined);
 }
+
+/**
+ * Build the download URL for a document.
+ *
+ * The endpoint streams the original file with an attachment filename, so the
+ * download works from a plain anchor (cookie auth, same origin). The internal
+ * storage path stays on the server; only the public endpoint is exposed here.
+ *
+ * @param {number|string} documentId Document id.
+ * @returns {string} Absolute download URL.
+ */
+export function getDocumentDownloadUrl(documentId) {
+  const baseURL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
+  return `${baseURL}/documents/${documentId}/download`;
+}

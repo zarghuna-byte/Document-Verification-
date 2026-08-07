@@ -8,14 +8,18 @@ import styles from './SummaryPanel.module.css';
  *
  * Tracks how many of the required documents have been uploaded and gates the
  * "Continue" action until all of them are present. Supporting documents are
- * optional and do not affect progress.
+ * optional and do not affect progress. The session tally reports how many
+ * files were uploaded or failed during this visit so the employee gets
+ * immediate confirmation of their work before moving on.
  *
  * @param {object} props
  * @param {Array<object>} props.documents Uploaded documents.
  * @param {Array<object>} props.requiredTypes Required document catalogue entries.
+ * @param {{uploaded: number, failed: number}} props.sessionTally Files
+ *   uploaded or failed during this session.
  * @param {Function} props.onContinue Callback fired when Continue is clicked.
  */
-function SummaryPanel({ documents, requiredTypes, onContinue }) {
+function SummaryPanel({ documents, requiredTypes, sessionTally, onContinue }) {
   const uploadedCount = requiredTypes.filter(({ type }) =>
     documents.some((document) => document.document_type === type)
   ).length;
@@ -23,6 +27,8 @@ function SummaryPanel({ documents, requiredTypes, onContinue }) {
   const remaining = Math.max(0, total - uploadedCount);
   const progress = total === 0 ? 0 : Math.round((uploadedCount / total) * 100);
   const ready = remaining === 0;
+  const { uploaded: sessionUploaded, failed: sessionFailed } = sessionTally;
+  const hasSessionActivity = sessionUploaded > 0 || sessionFailed > 0;
 
   return (
     <aside className={styles.panel}>
@@ -41,6 +47,13 @@ function SummaryPanel({ documents, requiredTypes, onContinue }) {
 
       <UploadProgress progress={progress} label={`${progress}% complete`} />
 
+      {hasSessionActivity && (
+        <p className={styles.session}>
+          Uploaded successfully: {sessionUploaded}
+          {sessionFailed > 0 && <span className={styles.sessionFailed}> · Failed: {sessionFailed}</span>}
+        </p>
+      )}
+
       <p className={styles.note}>
         {ready
           ? 'All required documents have been uploaded.'
@@ -53,7 +66,7 @@ function SummaryPanel({ documents, requiredTypes, onContinue }) {
         disabled={!ready}
         onClick={onContinue}
       >
-        Continue
+        Continue to Document Completeness
         <ArrowRight aria-hidden="true" />
       </button>
     </aside>

@@ -50,6 +50,17 @@
   color: var(--color-text-muted);
 }
 
+.session {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-success);
+  font-weight: 600;
+}
+
+.sessionFailed {
+  color: var(--color-danger);
+}
+
 .continue {
   display: inline-flex;
   align-items: center;

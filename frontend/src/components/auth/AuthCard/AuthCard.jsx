@@ -1,9 +1,24 @@
 import logo from '../../../assets/logo.svg';
 import styles from './AuthCard.module.css';
 
-function AuthCard({ title, subtitle, children, footer }) {
+/**
+ * Shared shell for the authentication screens.
+ *
+ * An optional `background` layer renders behind the card (e.g. the login
+ * video), so pages can decorate the page without restructuring the card.
+ *
+ * @param {object} props
+ * @param {string} props.title Card heading.
+ * @param {string} [props.subtitle] Card subheading.
+ * @param {import('react').ReactNode} props.children Form content.
+ * @param {import('react').ReactNode} [props.footer] Optional footer content.
+ * @param {import('react').ReactNode} [props.background] Decorative layer
+ *   rendered behind the card, or null.
+ */
+function AuthCard({ title, subtitle, children, footer, background = null }) {
   return (
     <div className={styles.wrap}>
+      {background}
       <div className={styles.card}>
         <div className={styles.brand}>
           <img className={styles.logo} src={logo} alt="FinTech logo" />

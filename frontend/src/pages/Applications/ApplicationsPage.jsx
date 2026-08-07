@@ -71,7 +71,7 @@ function ApplicationsPage() {
       {loading ? (
         <ApplicationTableSkeleton />
       ) : error ? (
-        <ErrorState message={error} onRetry={reload} />
+        <ErrorState message="Unable to load applications. Please try again." onRetry={reload} />
       ) : applications.length === 0 ? (
         <ApplicationEmptyState filtered={hasFilters} />
       ) : (

@@ -26,12 +26,12 @@ function ApplicationEmptyState({ filtered = false }) {
         />
       ) : (
         <EmptyState
-          title="No applications found"
-          message="Create your first application to begin the document verification process."
+          title="No applications yet"
+          message="Create an application to begin document verification."
           action={
             <Link to="/applications/new" className={styles.createBtn}>
               <Plus aria-hidden="true" />
-              Create New Application
+              Create Application
             </Link>
           }
         />

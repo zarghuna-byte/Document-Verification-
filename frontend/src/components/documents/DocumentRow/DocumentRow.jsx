@@ -1,8 +1,9 @@
-import { FileText, RefreshCw, Trash2, UploadCloud } from 'lucide-react';
+import { Download, FileText, RefreshCw, Trash2, UploadCloud } from 'lucide-react';
 
 import StatusChip from '../../common/StatusChip/StatusChip';
 import UploadProgress from '../UploadProgress/UploadProgress';
 import { getDocumentStatus } from '../../../data/statuses';
+import { getDocumentDownloadUrl } from '../../../services/documents';
 import styles from './DocumentRow.module.css';
 
 /**
@@ -54,6 +55,14 @@ function DocumentRow({ entry, document, pending, onUpload, onReplace, onDelete }
           )}
           {hasDocument && (
             <>
+              <a
+                className={styles.downloadBtn}
+                href={getDocumentDownloadUrl(document.id)}
+                aria-label={`Download ${entry.label}`}
+              >
+                <Download aria-hidden="true" />
+                Download
+              </a>
               <button className={styles.replaceBtn} type="button" onClick={onReplace}>
                 <RefreshCw aria-hidden="true" />
                 Replace
