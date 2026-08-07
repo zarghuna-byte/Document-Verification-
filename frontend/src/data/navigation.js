@@ -1,45 +1,86 @@
 import {
-  ArrowLeftRight,
   ClipboardCheck,
-  Cog,
   FileText,
   FolderOpen,
-  Gauge,
   LayoutDashboard,
   MessageSquare,
   RefreshCw,
-  Scale,
-  ScanSearch,
   Settings,
-  ShieldCheck,
   UploadCloud,
   UserCheck,
 } from 'lucide-react';
 
 /**
- * Sidebar navigation model.
+ * Sidebar navigation model, organised into employee-facing sections.
  *
- * Each entry declares its label, the route path and the icon rendered by the
- * Sidebar. The path doubles as the React Router destination and as the key for
- * deriving the page title and breadcrumb in the layout. The order mirrors the
- * document verification pipeline so the employee can see the full workflow.
+ * Each section groups top-level links only. Internal document-processing
+ * stages (technical validation, extraction, confidence, normalisation,
+ * business rules, ...) are intentionally absent: they run automatically as
+ * part of application verification and will surface later inside an
+ * application's status view, not as sidebar navigation.
  */
-export const NAV_ITEMS = [
-  { id: 'dashboard', label: 'Dashboard', path: '/', icon: LayoutDashboard },
-  { id: 'applications', label: 'Applications', path: '/applications', icon: FolderOpen },
-  { id: 'upload', label: 'Upload Documents', path: '/upload', icon: UploadCloud },
-  { id: 'completeness', label: 'Document Completeness', path: '/completeness', icon: ClipboardCheck },
-  { id: 'technical-validation', label: 'Technical Validation', path: '/technical-validation', icon: ShieldCheck },
-  { id: 'processing', label: 'Document Processing', path: '/processing', icon: Cog },
-  { id: 'extraction', label: 'Field Extraction', path: '/extraction', icon: ScanSearch },
-  { id: 'confidence', label: 'Confidence Review', path: '/confidence', icon: Gauge },
-  { id: 'normalization', label: 'Normalization', path: '/normalization', icon: ArrowLeftRight },
-  { id: 'business-rules', label: 'Business Rules', path: '/business-rules', icon: Scale },
-  { id: 'reports', label: 'Validation Reports', path: '/reports', icon: FileText },
-  { id: 'human-review', label: 'Human Review', path: '/human-review', icon: UserCheck },
-  { id: 'feedback', label: 'Feedback', path: '/feedback', icon: MessageSquare },
-  { id: 'continuous-learning', label: 'Continuous Learning', path: '/continuous-learning', icon: RefreshCw },
-  { id: 'settings', label: 'Settings', path: '/settings', icon: Settings },
+export const NAVIGATION = [
+  {
+    id: 'main',
+    label: 'Main',
+    items: [
+      { id: 'dashboard', label: 'Dashboard', path: '/', icon: LayoutDashboard },
+      { id: 'applications', label: 'Applications', path: '/applications', icon: FolderOpen },
+    ],
+  },
+  {
+    id: 'documents',
+    label: 'Documents',
+    items: [
+      { id: 'upload', label: 'Upload Documents', path: '/upload', icon: UploadCloud },
+    ],
+  },
+  {
+    id: 'verification',
+    label: 'Verification',
+    items: [
+      { id: 'completeness', label: 'Document Completeness', path: '/completeness', icon: ClipboardCheck },
+      { id: 'reports', label: 'Validation Reports', path: '/reports', icon: FileText },
+    ],
+  },
+  {
+    id: 'review',
+    label: 'Review',
+    items: [
+      { id: 'human-review', label: 'Human Review', path: '/human-review', icon: UserCheck },
+    ],
+  },
+  {
+    id: 'data',
+    label: 'Data',
+    items: [
+      { id: 'feedback', label: 'Feedback', path: '/feedback', icon: MessageSquare },
+      { id: 'continuous-learning', label: 'Continuous Learning', path: '/continuous-learning', icon: RefreshCw },
+    ],
+  },
+  {
+    id: 'system',
+    label: 'System',
+    items: [
+      { id: 'settings', label: 'Settings', path: '/settings', icon: Settings },
+    ],
+  },
+];
+
+/** Flat list of every sidebar navigation leaf, in display order. */
+export const NAV_ITEMS = NAVIGATION.flatMap(({ items }) => items);
+
+/**
+ * Internal routes that stay reachable (for future application-level workflow
+ * screens and testing) but are not exposed in the sidebar.
+ */
+export const INTERNAL_ROUTES = [
+  { id: 'technical-validation', label: 'Technical Validation', path: '/technical-validation' },
+  { id: 'processing', label: 'Document Processing', path: '/processing' },
+  { id: 'extraction', label: 'Field Extraction', path: '/extraction' },
+  { id: 'confidence', label: 'Confidence Review', path: '/confidence' },
+  { id: 'normalization', label: 'Normalization', path: '/normalization' },
+  { id: 'business-rules', label: 'Business Rules', path: '/business-rules' },
 ];
 
 /**

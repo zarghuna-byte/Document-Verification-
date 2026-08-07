@@ -45,8 +45,19 @@ function DashboardLayout({ themeDark = false }) {
     }
   };
 
+  const handleToggleCollapse = () => {
+    if (isMobile) {
+      setDrawerOpen(false);
+    } else {
+      setCollapsed((value) => !value);
+    }
+  };
+
+  const isCompact = collapsed && (isDesktop || isTablet);
+
   const mainClassName = [
     styles.main,
+    isDesktop && collapsed ? styles.sidebarCompact : '',
     isTablet ? (collapsed ? styles.sidebarCollapsed : styles.sidebarVisible) : '',
   ]
     .filter(Boolean)
@@ -55,9 +66,10 @@ function DashboardLayout({ themeDark = false }) {
   return (
     <div className={`${styles.shell} ${themeDark ? styles.dark : ''}`}>
       <Sidebar
-        collapsed={isTablet && collapsed}
+        collapsed={isCompact}
         drawerOpen={isMobile && drawerOpen}
         onNavigate={() => setDrawerOpen(false)}
+        onToggleCollapse={handleToggleCollapse}
       />
 
       {isMobile && drawerOpen && (

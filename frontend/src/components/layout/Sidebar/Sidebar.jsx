@@ -1,24 +1,16 @@
-import { LogOut } from 'lucide-react';
-import { NavLink } from 'react-router-dom';
+import { ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 
 import logo from '../../../assets/logo.svg';
-import { USER_PROFILE } from '../../../data/dashboard';
-import { NAV_ITEMS } from '../../../data/navigation';
+import { findNavItem, NAVIGATION } from '../../../data/navigation';
+import SidebarItem from './SidebarItem';
+import SidebarProfile from './SidebarProfile';
 import styles from './Sidebar.module.css';
 
-/**
- * Left navigation rail of the dashboard.
- *
- * Supports three layout modes controlled by the parent DashboardLayout:
- *  - expanded (desktop): full 270px width with labels
- *  - collapsed (tablet): icon-only rail
- *  - drawer (mobile): off-canvas panel revealed over the content
- *
- * @param {boolean} collapsed When true, renders the icon-only rail.
- * @param {boolean} drawerOpen When true, reveals the drawer on mobile.
- * @param {Function} onNavigate Callback fired after a link is selected.
- */
-function Sidebar({ collapsed = false, drawerOpen = false, onNavigate }) {
+function Sidebar({ collapsed = false, drawerOpen = false, onNavigate, onToggleCollapse }) {
+  const location = useLocation();
+  const activeItem = findNavItem(location.pathname);
+
   const className = [
     styles.sidebar,
     collapsed ? styles.collapsed : '',
@@ -38,42 +30,39 @@ function Sidebar({ collapsed = false, drawerOpen = false, onNavigate }) {
       </div>
 
       <nav className={styles.nav} aria-label="Primary">
-        <ul className={styles.navList}>
-          {NAV_ITEMS.map(({ id, label, path, icon: Icon }) => (
-            <li key={id}>
-              <NavLink
-                to={path}
-                end={path === '/'}
-                onClick={onNavigate}
-                className={({ isActive }) =>
-                  `${styles.navItem} ${isActive ? styles.active : ''}`
-                }
-              >
-                <Icon className={styles.navIcon} aria-hidden="true" />
-                <span className={styles.navLabel}>{label}</span>
-              </NavLink>
-            </li>
-          ))}
-        </ul>
+        {NAVIGATION.map((section) => (
+          <div key={section.id} className={styles.section}>
+            <p className={styles.sectionLabel}>{section.label}</p>
+            <ul className={styles.navList}>
+              {section.items.map((item) => (
+                <SidebarItem
+                  key={item.id}
+                  item={item}
+                  active={item.id === activeItem.id}
+                  onClick={onNavigate}
+                />
+              ))}
+            </ul>
+          </div>
+        ))}
       </nav>
 
       <div className={styles.footer}>
-        <div className={styles.user}>
-          <div className={styles.avatar} aria-hidden="true">
-            {USER_PROFILE.initials}
-          </div>
-          <div className={styles.userInfo}>
-            <span className={styles.userName}>{USER_PROFILE.name}</span>
-            <span className={styles.userStatus}>
-              <span className={styles.onlineDot} aria-hidden="true" />
-              Online
-            </span>
-          </div>
-        </div>
-        <button className={styles.logout} type="button" aria-label="Logout">
-          <LogOut className={styles.logoutIcon} aria-hidden="true" />
-          <span className={styles.navLabel}>Logout</span>
+        <button
+          className={styles.collapseButton}
+          type="button"
+          onClick={onToggleCollapse}
+          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        >
+          {collapsed ? (
+            <ChevronsRight className={styles.navIcon} aria-hidden="true" />
+          ) : (
+            <ChevronsLeft className={styles.navIcon} aria-hidden="true" />
+          )}
+          <span className={styles.navLabel}>{collapsed ? 'Expand' : 'Collapse'}</span>
         </button>
+        <SidebarProfile />
       </div>
     </aside>
   );

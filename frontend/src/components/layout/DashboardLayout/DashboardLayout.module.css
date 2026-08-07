@@ -13,6 +13,11 @@
   transition: margin-left var(--transition);
 }
 
+/* Desktop: collapsed rail reserves the rail width. */
+.sidebarCompact {
+  margin-left: var(--sidebar-width-collapsed);
+}
+
 /* Tablet: keep room for the expanded rail by default. */
 .sidebarVisible {
   margin-left: var(--sidebar-width-collapsed);
@@ -27,7 +32,8 @@
 @media (max-width: 767px) {
   .main,
   .sidebarVisible,
-  .sidebarCollapsed {
+  .sidebarCollapsed,
+  .sidebarCompact {
     margin-left: 0;
   }
 }
