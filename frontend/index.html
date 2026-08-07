@@ -8,6 +8,25 @@
       content="FinTech - Financial Document Verification System, an AI-assisted financial document processing platform."
     />
     <title>FinTech | Financial Document Verification</title>
+    <script>
+      (function () {
+        var key = 'fintech-theme-preference';
+        var preference = 'system';
+        try {
+          preference = window.localStorage.getItem(key) || 'system';
+        } catch (e) {}
+        if (preference !== 'light' && preference !== 'dark') {
+          preference = 'system';
+        }
+        var theme =
+          preference === 'system'
+            ? window.matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dark'
+              : 'light'
+            : preference;
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

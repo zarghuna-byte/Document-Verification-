@@ -1,18 +1,25 @@
+import AuthProvider from './auth/AuthProvider';
 import { ToastProvider } from './components/common/Toast/ToastContext';
 import AppRoutes from './routes/AppRoutes';
+import { ThemeProvider } from './theme/ThemeProvider';
 
 /**
  * Application root.
  *
- * Wraps the route table with the browser router, the global toast system and
- * the global stylesheet import. Further global providers (theming,
- * notifications) can be stacked here in later phases.
+ * Composes the global providers: theming (light/dark/system), authentication
+ * (session restoration, login/logout) and toast notifications, in that order.
+ * The theme provider sits outermost so the whole tree, including the login
+ * screen, renders against the resolved palette.
  */
 function App() {
   return (
-    <ToastProvider>
-      <AppRoutes />
-    </ToastProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <ToastProvider>
+          <AppRoutes />
+        </ToastProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

@@ -14,12 +14,8 @@ import styles from './DashboardLayout.module.css';
  * an icon-only rail on tablet, and a drawer with a backdrop overlay on mobile.
  * The page title and breadcrumb are derived from the current route so the
  * navbar always reflects the active navigation entry.
- *
- * @param {object} props
- * @param {boolean} props.themeDark When true, toggles the dark theme class on
- *   the content region. Presentational in this phase.
  */
-function DashboardLayout({ themeDark = false }) {
+function DashboardLayout() {
   const location = useLocation();
   const isDesktop = useMediaQuery('(min-width: 1024px)');
   const isTablet = useMediaQuery('(min-width: 768px) and (max-width: 1023px)');
@@ -64,7 +60,7 @@ function DashboardLayout({ themeDark = false }) {
     .join(' ');
 
   return (
-    <div className={`${styles.shell} ${themeDark ? styles.dark : ''}`}>
+    <div className={styles.shell}>
       <Sidebar
         collapsed={isCompact}
         drawerOpen={isMobile && drawerOpen}

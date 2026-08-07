@@ -1,11 +1,12 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 
-import DashboardLayout from '../components/layout/DashboardLayout/DashboardLayout';
+import ProtectedLayout from '../components/layout/ProtectedLayout/ProtectedLayout';
 import { INTERNAL_ROUTES, NAV_ITEMS } from '../data/navigation';
 import ApplicationDetailsPage from '../pages/ApplicationDetails/ApplicationDetailsPage';
 import ApplicationsPage from '../pages/Applications/ApplicationsPage';
 import CreateApplicationPage from '../pages/CreateApplication/CreateApplicationPage';
 import Dashboard from '../pages/Dashboard/Dashboard';
+import LoginPage from '../pages/Login/LoginPage';
 import PlaceholderPage from '../pages/Placeholder/PlaceholderPage';
 import UploadDocumentsPage from '../pages/UploadDocuments/UploadDocumentsPage';
 
@@ -28,7 +29,8 @@ const PLACEHOLDER_ITEMS = [
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<DashboardLayout />}>
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/" element={<ProtectedLayout />}>
         <Route index element={<Dashboard />} />
         <Route path="applications" element={<ApplicationsPage />} />
         <Route path="applications/new" element={<CreateApplicationPage />} />
