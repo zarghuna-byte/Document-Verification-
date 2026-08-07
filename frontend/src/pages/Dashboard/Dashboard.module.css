@@ -24,20 +24,15 @@
   color: var(--color-text-muted);
 }
 
-.stats {
+.columns {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
+  align-items: start;
 }
 
 @media (max-width: 1023px) {
-  .stats {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 767px) {
-  .stats {
+  .columns {
     grid-template-columns: 1fr;
   }
 }

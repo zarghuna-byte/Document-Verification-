@@ -35,3 +35,7 @@
   line-height: 1.5;
   color: var(--color-text-muted);
 }
+
+.action {
+  margin-top: 12px;
+}
