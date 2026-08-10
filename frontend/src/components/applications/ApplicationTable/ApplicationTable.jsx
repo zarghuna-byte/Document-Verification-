@@ -74,6 +74,7 @@ function ApplicationTable({ applications, sortKey, sortDir, onSortChange }) {
                 </button>
               </th>
             ))}
+            <th scope="col">Status</th>
             <th scope="col">Created By</th>
             <th scope="col" className={styles.actionsHeader}>
               Actions
