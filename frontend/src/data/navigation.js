@@ -1,5 +1,4 @@
 import {
-  ClipboardCheck,
   FileText,
   FolderOpen,
   LayoutDashboard,
@@ -13,11 +12,14 @@ import {
 /**
  * Sidebar navigation model, organised into employee-facing sections.
  *
- * Each section groups top-level links only. Internal document-processing
- * stages (technical validation, extraction, confidence, normalisation,
- * business rules, ...) are intentionally absent: they run automatically as
- * part of application verification and will surface later inside an
- * application's status view, not as sidebar navigation.
+ * Each section groups top-level links only. Feedback collection and Continuous
+ * Learning are internal administrative functions and are deliberately not
+ * sidebar entries: they hang off the Settings item as admin-only child links
+ * and are surfaced on the Settings page. Internal document-processing stages
+ * (technical validation, extraction, confidence, normalisation, business
+ * rules, ...) are intentionally absent: they run automatically as part of
+ * application verification and will surface later inside an application's
+ * status view, not as sidebar navigation.
  */
 export const NAVIGATION = [
   {
@@ -39,30 +41,24 @@ export const NAVIGATION = [
     id: 'verification',
     label: 'Verification',
     items: [
-      { id: 'completeness', label: 'Document Completeness', path: '/completeness', icon: ClipboardCheck },
       { id: 'reports', label: 'Validation Reports', path: '/reports', icon: FileText },
-    ],
-  },
-  {
-    id: 'review',
-    label: 'Review',
-    items: [
       { id: 'human-review', label: 'Human Review', path: '/human-review', icon: UserCheck },
-    ],
-  },
-  {
-    id: 'data',
-    label: 'Data',
-    items: [
-      { id: 'feedback', label: 'Feedback', path: '/feedback', icon: MessageSquare },
-      { id: 'continuous-learning', label: 'Continuous Learning', path: '/continuous-learning', icon: RefreshCw },
     ],
   },
   {
     id: 'system',
     label: 'System',
     items: [
-      { id: 'settings', label: 'Settings', path: '/settings', icon: Settings },
+      {
+        id: 'settings',
+        label: 'Settings',
+        path: '/settings',
+        icon: Settings,
+        children: [
+          { id: 'feedback', label: 'Feedback', path: '/feedback', icon: MessageSquare, adminOnly: true },
+          { id: 'continuous-learning', label: 'Continuous Learning', path: '/continuous-learning', icon: RefreshCw, adminOnly: true },
+        ],
+      },
     ],
   },
 ];
@@ -71,10 +67,19 @@ export const NAVIGATION = [
 export const NAV_ITEMS = NAVIGATION.flatMap(({ items }) => items);
 
 /**
+ * Admin-only navigation leaves nested under a parent sidebar entry.
+ *
+ * These are not shown as top-level sidebar items; they are reached from the
+ * Settings page (under Administration) and stay marked as restricted.
+ */
+export const ADMIN_NAV_ITEMS = NAV_ITEMS.flatMap((item) => item.children ?? []);
+
+/**
  * Internal routes that stay reachable (for future application-level workflow
  * screens and testing) but are not exposed in the sidebar.
  */
 export const INTERNAL_ROUTES = [
+  { id: 'completeness', label: 'Document Completeness', path: '/completeness' },
   { id: 'technical-validation', label: 'Technical Validation', path: '/technical-validation' },
   { id: 'processing', label: 'Document Processing', path: '/processing' },
   { id: 'extraction', label: 'Field Extraction', path: '/extraction' },
@@ -94,12 +99,20 @@ export const INTERNAL_ROUTES = [
  * @returns {object} The matching nav entry, defaulting to Dashboard.
  */
 export function findNavItem(path) {
-  const exact = NAV_ITEMS.find((item) => item.path === path);
+  const all = [...NAV_ITEMS, ...ADMIN_NAV_ITEMS];
+  const exact = all.find((item) => item.path === path);
   if (exact) {
+    if (exact.adminOnly) {
+      return NAV_ITEMS.find((item) => item.children?.some((child) => child.id === exact.id)) ?? exact;
+    }
     return exact;
   }
-  const prefixed = NAV_ITEMS.filter(
+  const prefixed = all.filter(
     (item) => item.path !== '/' && path.startsWith(`${item.path}/`)
   );
-  return prefixed.sort((a, b) => b.path.length - a.path.length)[0] ?? NAV_ITEMS[0];
+  const match = prefixed.sort((a, b) => b.path.length - a.path.length)[0];
+  if (match) {
+    return NAV_ITEMS.find((item) => item.children?.some((child) => child.id === match.id)) ?? match;
+  }
+  return NAV_ITEMS[0];
 }
