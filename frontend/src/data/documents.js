@@ -57,16 +57,12 @@ export const DOCUMENT_TYPES = [
     requiredCopies: 1,
   },
   {
-    type: 'CNIC_FRONT',
-    label: 'CNIC (Front)',
+    type: 'CNIC',
+    label: 'CNIC (Front & Back)',
     group: DOCUMENT_GROUP_REQUIRED,
-    requiredCopies: 1,
-  },
-  {
-    type: 'CNIC_BACK',
-    label: 'CNIC (Back)',
-    group: DOCUMENT_GROUP_REQUIRED,
-    requiredCopies: 1,
+    requiredCopies: 2,
+    slotTypes: ['CNIC_FRONT', 'CNIC_BACK'],
+    slotLabels: ['Front', 'Back'],
   },
 ];
 
@@ -80,7 +76,7 @@ export const SUPPORTING_DOCUMENT_TYPES = DOCUMENT_TYPES.filter(
 
 /**
  * Total number of required uploads per application
- * (1 + 1 + 3 + 3 + 6 + 1 + 1 + 1 + 1).
+ * (1 + 1 + 3 + 3 + 6 + 1 + 1 + 2).
  */
 export const TOTAL_REQUIRED_DOCUMENTS = REQUIRED_DOCUMENT_TYPES.reduce(
   (sum, entry) => sum + entry.requiredCopies,
@@ -90,11 +86,21 @@ export const TOTAL_REQUIRED_DOCUMENTS = REQUIRED_DOCUMENT_TYPES.reduce(
 /**
  * Look up the catalogue entry for a document type value.
  *
+ * Composite topics (e.g. CNIC front/back) map their backend slot types onto the
+ * single catalogue entry so every view shows the same grouped topic.
+ *
  * @param {string} type A backend `DocumentType` value.
  * @returns {object} The matching catalogue entry, or the fallback entry.
  */
 export function getDocumentTypeConfig(type) {
-  return DOCUMENT_TYPES.find((entry) => entry.type === type) ?? DOCUMENT_TYPES[0];
+  const bySlotType = DOCUMENT_TYPES.find(
+    (entry) => entry.slotTypes && entry.slotTypes.includes(type)
+  );
+  return (
+    bySlotType ??
+    DOCUMENT_TYPES.find((entry) => entry.type === type) ??
+    DOCUMENT_TYPES[0]
+  );
 }
 
 /**
@@ -116,7 +122,9 @@ export function computeDocumentProgress(documents = []) {
   }
 
   const categories = REQUIRED_DOCUMENT_TYPES.map((entry) => {
-    const present = counts[entry.type] ?? 0;
+    const present = entry.slotTypes
+      ? entry.slotTypes.reduce((sum, slotType) => sum + (counts[slotType] ?? 0), 0)
+      : counts[entry.type] ?? 0;
     let status = 'missing';
     if (present >= entry.requiredCopies) {
       status = 'complete';

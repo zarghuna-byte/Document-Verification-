@@ -67,8 +67,8 @@ function DocumentList({
       <div className={styles.groups}>
         {requiredTypes.map((entry) => {
           const present = Array.from({ length: entry.requiredCopies }, (_, index) => {
-            const copyNumber = index + 1;
-            return findDocument(entry.type, copyNumber);
+            const slotType = entry.slotTypes?.[index] ?? entry.type;
+            return findDocument(slotType, entry.slotTypes ? 1 : index + 1);
           }).filter(Boolean).length;
           return (
             <section key={entry.type} className={styles.group}>
@@ -80,19 +80,21 @@ function DocumentList({
               </div>
               <ul className={styles.grid}>
                 {Array.from({ length: entry.requiredCopies }, (_, index) => {
-                  const copyNumber = index + 1;
-                  const slotKey = `${entry.type}-${copyNumber}`;
-                  const document = findDocument(entry.type, copyNumber);
+                  const slotType = entry.slotTypes?.[index] ?? entry.type;
+                  const copyNumber = entry.slotTypes ? 1 : index + 1;
+                  const slotKey = `${slotType}-${copyNumber}`;
+                  const slotLabel = entry.slotLabels?.[index] ?? `Copy ${index + 1}`;
+                  const document = findDocument(slotType, copyNumber);
                   const slotPending =
                     pending[`upload-${slotKey}`] ?? (document ? pending[`replace-${document.id}`] : null);
                   return (
-                    <li key={copyNumber}>
+                    <li key={slotKey}>
                       <DocumentRow
-                        entry={{ ...entry, label: `Copy ${copyNumber}` }}
+                        entry={{ ...entry, label: slotLabel }}
                         document={document}
                         pending={slotPending}
-                        onUpload={() => triggerPicker(entry.type, copyNumber)}
-                        onReplace={() => triggerPicker(entry.type, copyNumber)}
+                        onUpload={() => triggerPicker(slotType, copyNumber)}
+                        onReplace={() => triggerPicker(slotType, copyNumber)}
                         onDelete={() => document && onDelete(document)}
                       />
                       <input
@@ -103,7 +105,7 @@ function DocumentList({
                         accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.tif,.tiff"
                         hidden
                         tabIndex={-1}
-                        onChange={(event) => handleFile(entry.type, copyNumber, event)}
+                        onChange={(event) => handleFile(slotType, copyNumber, event)}
                       />
                     </li>
                   );
