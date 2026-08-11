@@ -1,7 +1,7 @@
 .card {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
   background: var(--color-card);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
@@ -9,10 +9,111 @@
   padding: 20px 24px 24px;
 }
 
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .title {
   font-size: 16px;
   font-weight: 600;
   color: var(--color-text);
+}
+
+.viewAll {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.viewAll:hover {
+  text-decoration: underline;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+  text-decoration: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.row:hover {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.id {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+  min-width: 56px;
+}
+
+.status {
+  display: inline-flex;
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.createdBy {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.updated {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.chevron {
+  width: 18px;
+  height: 18px;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.skeletonRow {
+  height: 52px;
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 .createBtn {
@@ -25,6 +126,7 @@
   color: #fff;
   font-size: 14px;
   font-weight: 600;
+  text-decoration: none;
   transition: background-color var(--transition);
 }
 
@@ -35,4 +137,14 @@
 .createBtn svg {
   width: 18px;
   height: 18px;
+}
+
+@media (max-width: 767px) {
+  .row {
+    gap: 10px;
+  }
+
+  .id {
+    min-width: 48px;
+  }
 }

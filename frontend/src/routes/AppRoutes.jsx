@@ -9,6 +9,7 @@ import Dashboard from '../pages/Dashboard/Dashboard';
 import LoginPage from '../pages/Login/LoginPage';
 import PlaceholderPage from '../pages/Placeholder/PlaceholderPage';
 import UploadDocumentsPage from '../pages/UploadDocuments/UploadDocumentsPage';
+import VerificationPage from '../pages/Verification/VerificationPage';
 
 /**
  * Application route table.
@@ -35,6 +36,7 @@ function AppRoutes() {
         <Route path="applications" element={<ApplicationsPage />} />
         <Route path="applications/new" element={<CreateApplicationPage />} />
         <Route path="applications/:applicationId/upload" element={<UploadDocumentsPage />} />
+        <Route path="applications/:applicationId/verification" element={<VerificationPage />} />
         <Route path="applications/:applicationId" element={<ApplicationDetailsPage />} />
         <Route path="upload" element={<Navigate to="/applications" replace />} />
         {PLACEHOLDER_ITEMS.map(({ id, label, path }) => (

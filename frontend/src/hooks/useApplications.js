@@ -1,61 +1,45 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
-import { createApplication, listApplications } from '../services/applications';
-import { getApiErrorMessage } from '../utils/apiError';
+import { useApplicationsStore } from '../store/ApplicationsContext';
 import { sortBy } from '../utils/sort';
 
 /**
- * Load and manage the applications list.
+ * Applications page view over the shared application store.
  *
- * The status filter is applied server-side (the API receives it as a query
- * param); the search term and column sorting are applied client-side over the
- * fetched page. Search covers application id, creator and notes. All failures
- * surface as a friendly message the page can display or toast.
+ * The canonical list lives in the ApplicationsProvider; this hook derives the
+ * page-specific view (status filter, search and column sorting are applied
+ * client-side over the fetched page). Creating an application goes through the
+ * store, so the new record appears in both the Applications page and the
+ * Dashboard "Recent Applications" section from the same update.
  */
 export function useApplications() {
-  const [applications, setApplications] = useState([]);
-  const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { applications, loading, error, reload, create } = useApplicationsStore();
   const [statusFilter, setStatusFilter] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [sortKey, setSortKey] = useState('submitted_at');
   const [sortDir, setSortDir] = useState('desc');
 
-  const load = useCallback(async (status) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const { items, total: count } = await listApplications({
-        limit: 100,
-        status: status || undefined,
-      });
-      setApplications(items);
-      setTotal(count);
-    } catch (err) {
-      setError(getApiErrorMessage(err));
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    load(statusFilter);
-  }, [load, statusFilter]);
-
-  const filteredApplications = applications.filter((application) => {
+  const filteredApplications = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
-    if (!term) {
-      return true;
-    }
-    return (
-      String(application.id).includes(term) ||
-      application.created_by.toLowerCase().includes(term) ||
-      (application.notes ?? '').toLowerCase().includes(term)
-    );
-  });
+    return applications.filter((application) => {
+      if (statusFilter && application.status !== statusFilter) {
+        return false;
+      }
+      if (!term) {
+        return true;
+      }
+      return (
+        String(application.id).includes(term) ||
+        application.created_by.toLowerCase().includes(term) ||
+        (application.notes ?? '').toLowerCase().includes(term)
+      );
+    });
+  }, [applications, statusFilter, searchTerm]);
 
-  const visibleApplications = sortBy(filteredApplications, sortKey, sortDir);
+  const visibleApplications = useMemo(
+    () => sortBy(filteredApplications, sortKey, sortDir),
+    [filteredApplications, sortKey, sortDir]
+  );
 
   const handleStatusChange = useCallback((value) => {
     setStatusFilter(value);
@@ -70,21 +54,12 @@ export function useApplications() {
     setSortDir(direction);
   }, []);
 
-  const create = useCallback(async ({ createdBy, notes }) => {
-    try {
-      const application = await createApplication({ createdBy, notes });
-      return { ok: true, application };
-    } catch (err) {
-      return { ok: false, error: getApiErrorMessage(err) };
-    }
-  }, []);
-
   return {
     applications: visibleApplications,
-    total,
+    total: filteredApplications.length,
     loading,
     error,
-    reload: () => load(statusFilter),
+    reload,
     searchTerm,
     statusFilter,
     sortKey,

@@ -1,7 +1,6 @@
 import { Link, useParams } from 'react-router-dom';
 
 import { ArrowLeft, History, ShieldCheck, UploadCloud } from 'lucide-react';
-
 import ApplicationStatusBadge from '../../components/applications/ApplicationStatusBadge/ApplicationStatusBadge';
 import { ApplicationCardSkeleton } from '../../components/applications/ApplicationSkeleton/ApplicationSkeleton';
 import DocumentsSection from '../../components/documents/DocumentsSection/DocumentsSection';
@@ -100,6 +99,13 @@ function ApplicationDetailsPage() {
             <UploadCloud aria-hidden="true" />
             Upload Documents
           </Link>
+          <Link
+            to={`/applications/${application.id}/verification`}
+            className={styles.primaryBtn}
+          >
+            <ShieldCheck aria-hidden="true" />
+            Verification
+          </Link>
           <Link to="/applications" className={styles.secondaryBtn}>
             <ArrowLeft aria-hidden="true" />
             Back to Applications
@@ -110,11 +116,6 @@ function ApplicationDetailsPage() {
       <DocumentsSection applicationId={application.id} />
 
       <div className={styles.placeholders}>
-        <PlaceholderCard
-          icon={ShieldCheck}
-          title="Verification Status"
-          message="No verification has been started for this application yet."
-        />
         <PlaceholderCard
           icon={History}
           title="Recent Activity"

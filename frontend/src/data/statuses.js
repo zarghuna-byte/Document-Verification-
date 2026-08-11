@@ -17,6 +17,36 @@ export const APPLICATION_STATUSES = [
   { value: 'CORRECTED', label: 'Corrected', variant: 'neutral', color: 'purple' },
 ];
 
+/**
+ * Verification workspace statuses.
+ *
+ * Raw rule-engine outcomes (PASS, WARNING, PENDING_MANUAL_REVIEW, FAIL,
+ * REJECTED) are mapped to employee-facing labels and StatusChip variants.
+ * Derived per-document statuses (Verified / Review Required / Failed /
+ * Missing / Pending) share the same catalogue so one lookup serves both.
+ */
+export const VERIFICATION_STATUSES = [
+  { value: 'VERIFIED', label: 'Verified', variant: 'success' },
+  { value: 'REVIEW_REQUIRED', label: 'Review Required', variant: 'warning' },
+  { value: 'FAILED', label: 'Failed', variant: 'danger' },
+  { value: 'MISSING', label: 'Missing', variant: 'neutral' },
+  { value: 'PENDING', label: 'Pending', variant: 'info' },
+  { value: 'REJECTED', label: 'Rejected', variant: 'danger' },
+];
+
+/**
+ * Verification issue severities shown in the issue list.
+ *
+ * Backend severities (ERROR / WARNING / INFO) map to the employee-facing
+ * Critical / Warning / Review Required vocabulary. Pending-manual-review rows
+ * surface as "Review Required" rather than a raw enum value.
+ */
+export const VERIFICATION_SEVERITIES = [
+  { value: 'CRITICAL', label: 'Critical', variant: 'danger' },
+  { value: 'WARNING', label: 'Warning', variant: 'warning' },
+  { value: 'REVIEW_REQUIRED', label: 'Review Required', variant: 'neutral' },
+];
+
 export const DOCUMENT_STATUSES = [
   { value: 'UPLOADED', label: 'Uploaded', variant: 'success' },
   { value: 'PENDING', label: 'Uploaded', variant: 'success' },
@@ -48,4 +78,43 @@ export function getApplicationStatus(value) {
 
 export function getDocumentStatus(value) {
   return findStatus(DOCUMENT_STATUSES, value);
+}
+
+/**
+ * Map a raw rule-engine validation status to an employee-facing status entry.
+ *
+ * @param {string} value A backend `ValidationStatus` value.
+ * @returns {object} The corresponding verification status entry.
+ */
+export function getVerificationStatus(value) {
+  switch (value) {
+    case 'PASS':
+      return findStatus(VERIFICATION_STATUSES, 'VERIFIED');
+    case 'FAIL':
+      return findStatus(VERIFICATION_STATUSES, 'FAILED');
+    case 'REJECTED':
+      return findStatus(VERIFICATION_STATUSES, 'REJECTED');
+    case 'WARNING':
+    case 'PENDING_MANUAL_REVIEW':
+    default:
+      return findStatus(VERIFICATION_STATUSES, 'REVIEW_REQUIRED');
+  }
+}
+
+/**
+ * Map a stored rule severity to an employee-facing severity entry.
+ *
+ * @param {string} value A backend `Severity` value.
+ * @returns {object} The corresponding verification severity entry.
+ */
+export function getVerificationSeverity(value) {
+  switch (value) {
+    case 'ERROR':
+      return findStatus(VERIFICATION_SEVERITIES, 'CRITICAL');
+    case 'WARNING':
+      return findStatus(VERIFICATION_SEVERITIES, 'WARNING');
+    case 'INFO':
+    default:
+      return findStatus(VERIFICATION_SEVERITIES, 'REVIEW_REQUIRED');
+  }
 }
