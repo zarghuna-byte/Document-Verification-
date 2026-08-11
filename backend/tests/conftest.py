@@ -13,6 +13,7 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import text
 
+from app.auth.seed import seed as seed_default_account
 from app.core.config import get_settings
 from app.database.connection import SessionLocal
 from app.main import app
@@ -73,3 +74,16 @@ def isolated_database():
     _wipe_database()
     yield
     _wipe_database()
+
+
+@pytest.fixture(scope="session", autouse=True)
+def restore_default_account():
+    """Re-create the default employee account once the whole session has run.
+
+    ``isolated_database`` wipes every user around each test, which also removes
+    the seeded ``DEFAULT_EMPLOYEE_*`` account that development and manual login
+    depend on. Re-seeding afterwards keeps the local environment usable after a
+    test run.
+    """
+    yield
+    seed_default_account()
