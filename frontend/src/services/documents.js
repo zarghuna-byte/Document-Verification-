@@ -11,9 +11,12 @@ import api from './api';
  * @param {File} params.file The selected file.
  * @returns {FormData}
  */
-function buildFormData({ documentType, file }) {
+function buildFormData({ documentType, copyNumber, file }) {
   const formData = new FormData();
   formData.append('document_type', documentType);
+  if (copyNumber !== undefined) {
+    formData.append('copy_number', String(copyNumber));
+  }
   formData.append('file', file);
   return formData;
 }
@@ -38,12 +41,16 @@ export function listDocuments(applicationId) {
  * @param {Function} [params.onUploadProgress] Axios upload progress callback.
  * @returns {Promise<object>} The uploaded document metadata.
  */
-export function uploadDocument({ applicationId, documentType, file, onUploadProgress }) {
+export function uploadDocument({ applicationId, documentType, copyNumber, file, onUploadProgress }) {
   return api
-    .post(`/applications/${applicationId}/documents`, buildFormData({ documentType, file }), {
-      headers: { 'Content-Type': 'multipart/form-data' },
-      onUploadProgress,
-    })
+    .post(
+      `/applications/${applicationId}/documents`,
+      buildFormData({ documentType, copyNumber, file }),
+      {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        onUploadProgress,
+      }
+    )
     .then((response) => response.data.document);
 }
 

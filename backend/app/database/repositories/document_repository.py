@@ -29,6 +29,7 @@ class DocumentRepository(BaseRepository[Document]):
         *,
         application_id: int,
         document_type: DocumentType,
+        copy_number: int = 1,
         original_filename: str,
         stored_file_path: str,
         file_type: str,
@@ -39,6 +40,7 @@ class DocumentRepository(BaseRepository[Document]):
         Args:
             application_id: Owning application id.
             document_type: Category of the document.
+            copy_number: 1-based slot index for this copy within the type.
             original_filename: Filename supplied by the uploader.
             stored_file_path: Location of the file on the storage backend.
             file_type: Media type (MIME) of the stored file.
@@ -50,6 +52,7 @@ class DocumentRepository(BaseRepository[Document]):
         document = Document(
             application_id=application_id,
             document_type=document_type,
+            copy_number=copy_number,
             original_filename=original_filename,
             stored_file_path=stored_file_path,
             file_type=file_type,

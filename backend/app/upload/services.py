@@ -20,7 +20,7 @@ from app.database.models.document import Document
 from app.database.models.enums import ApplicationStatus, DocumentProcessingStatus, DocumentType
 from app.database.repositories.application_repository import ApplicationRepository
 from app.database.repositories.document_repository import DocumentRepository
-from app.upload.constants import READ_CHUNK_BYTES
+from app.upload.constants import MAX_COPIES_BY_DOCUMENT_TYPE, READ_CHUNK_BYTES
 from app.upload.exceptions import (
     ApplicationNotFoundException,
     DocumentNotFoundException,
@@ -113,6 +113,7 @@ class UploadService:
         filename: str,
         content_type: str,
         file: BinaryIO,
+        copy_number: int = 1,
     ) -> Document:
         """Validate and persist a newly uploaded document.
 
@@ -122,19 +123,22 @@ class UploadService:
             filename: Raw client-supplied filename.
             content_type: Declared media type.
             file: Stream to read the file content from.
+            copy_number: 1-based slot index for this copy within the type,
+                e.g. ``3`` for the third 1-Link form.
 
         Returns:
             The persisted document metadata with ``UPLOADED`` status.
 
         Raises:
             ApplicationNotFoundException: When the application does not exist.
-            DuplicateDocumentException: When the application already holds a
-                document of this type.
+            DuplicateDocumentException: When the application already holds the
+                maximum number of documents of this type, or when the requested
+                copy slot is already occupied.
             MissingFileException / InvalidFileTypeException /
                 FileTooLargeException: When the file fails validation.
         """
         application = self._get_application(application_id)
-        self._ensure_no_duplicate(application_id, document_type)
+        self._ensure_slot_available(application_id, document_type, copy_number)
 
         content = self._read_with_limit(file)
         extension = validate_file_content(filename, content_type, content)
@@ -145,6 +149,7 @@ class UploadService:
             document = self._documents.create(
                 application_id=application.id,
                 document_type=document_type,
+                copy_number=copy_number,
                 original_filename=safe_filename,
                 stored_file_path=stored_path,
                 file_type=_content_type_for(extension),
@@ -157,9 +162,10 @@ class UploadService:
             raise
 
         logger.info(
-            "Uploaded document id=%s type=%s for application id=%s stored=%s",
+            "Uploaded document id=%s type=%s copy=%s for application id=%s stored=%s",
             document.id,
             document_type.value,
+            copy_number,
             application.id,
             stored_path,
         )
@@ -342,19 +348,35 @@ class UploadService:
             raise DocumentNotFoundException()
         return document
 
-    def _ensure_no_duplicate(
+    def _ensure_slot_available(
         self,
         application_id: int,
         document_type: DocumentType,
+        copy_number: int,
     ) -> None:
-        """Raise ``DuplicateDocumentException`` when the type is already used."""
+        """Raise ``DuplicateDocumentException`` when the copy slot is unavailable.
+
+        A type is limited to ``MAX_COPIES_BY_DOCUMENT_TYPE`` copies per
+        application; types outside the map accept a single copy. Within the
+        limit, each 1-based copy number is a distinct, stable slot so a copy
+        can never silently overwrite a sibling of the same type.
+        """
+        max_copies = MAX_COPIES_BY_DOCUMENT_TYPE.get(document_type, 1)
+        if copy_number < 1 or copy_number > max_copies:
+            noun = "copy" if max_copies == 1 else "copies"
+            raise DuplicateDocumentException(
+                f"Cannot upload more than {max_copies} {noun} of "
+                f"{document_type.value} per application"
+            )
+
         statement = select(Document).where(
             Document.application_id == application_id,
             Document.document_type == document_type,
+            Document.copy_number == copy_number,
         )
         if self._db.scalar(statement) is not None:
             raise DuplicateDocumentException(
-                f"A {document_type.value} document already exists for this application"
+                f"Copy {copy_number} of {document_type.value} already exists for this application"
             )
 
     def _read_with_limit(self, file: BinaryIO) -> bytes:

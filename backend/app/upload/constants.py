@@ -20,6 +20,18 @@ DOCUMENT_TYPE_SLUGS: dict[DocumentType, str] = {
     DocumentType.BUSINESS_REQUIREMENT_DOCUMENT: "business_requirement",
     DocumentType.FORMAL_REQUEST_LETTER: "formal_request",
     DocumentType.OTHER_SUPPORTING_DOCUMENT: "other",
+    DocumentType.CNIC_FRONT: "cnic_front",
+    DocumentType.CNIC_BACK: "cnic_back",
+}
+
+#: Maximum number of copies an application may hold per document type. Types
+#: missing from this map are limited to a single copy. Multiple copies are a
+#: business requirement: e.g. three 1-Link forms and six Schedule of Charges
+#: agreements are uploaded per application.
+MAX_COPIES_BY_DOCUMENT_TYPE: dict[DocumentType, int] = {
+    DocumentType.ONE_LINK_LETTER: 3,
+    DocumentType.TRIPARTITE_AGREEMENT: 3,
+    DocumentType.SCHEDULE_OF_CHARGES: 6,
 }
 
 #: Filename extensions accepted for upload, lower case with a leading dot.

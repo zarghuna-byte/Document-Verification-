@@ -29,6 +29,9 @@ class Document(Base):
         id: Auto-incrementing primary key.
         application_id: Owning application (foreign key, cascades on delete).
         document_type: Category of the document.
+        copy_number: 1-based slot index for this copy within the document type
+            (e.g. the second 1-Link form is copy_number 2). Defaults to 1 so
+            pre-existing single-copy rows are unaffected.
         original_filename: Filename supplied by the uploader.
         stored_file_path: Location of the file on the storage backend.
         file_type: Media type (MIME) of the stored file.
@@ -42,6 +45,7 @@ class Document(Base):
         Index("ix_documents_document_type", "document_type"),
         Index("ix_documents_processing_status", "processing_status"),
         Index("ix_documents_uploaded_at", "uploaded_at"),
+        Index("ix_documents_app_type_copy", "application_id", "document_type", "copy_number"),
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
@@ -50,6 +54,11 @@ class Document(Base):
         nullable=False,
     )
     document_type: Mapped[DocumentType] = mapped_column(nullable=False)
+    copy_number: Mapped[int] = mapped_column(
+        default=1,
+        server_default="1",
+        nullable=False,
+    )
     original_filename: Mapped[str] = mapped_column(String(255), nullable=False)
     stored_file_path: Mapped[str] = mapped_column(String(1024), nullable=False)
     file_type: Mapped[str] = mapped_column(String(100), nullable=False)

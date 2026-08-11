@@ -25,11 +25,15 @@ def upload(
     content: bytes = PDF_BYTES,
     content_type: str = "application/pdf",
     document_type: str = "TRIPARTITE_AGREEMENT",
+    copy_number: int | None = None,
 ):
     """Upload a document via the API and return the response."""
+    data = {"document_type": document_type}
+    if copy_number is not None:
+        data["copy_number"] = copy_number
     return client.post(
         f"{API}/applications/{application_id}/documents",
-        data={"document_type": document_type},
+        data=data,
         files={"file": (filename, content, content_type)},
     )
 
@@ -162,6 +166,79 @@ def test_upload_duplicate_type_rejected(client):
 
     assert response.status_code == 409, response.text
     assert "already exists" in response.json()["detail"]
+
+
+def test_upload_multiple_copies_success(client):
+    application_id = create_application(client)
+    for copy_number in (1, 2, 3):
+        response = upload(
+            client,
+            application_id,
+            filename=f"scan-{copy_number}.pdf",
+            document_type="TRIPARTITE_AGREEMENT",
+            copy_number=copy_number,
+        )
+        assert response.status_code == 201, response.text
+        assert response.json()["document"]["copy_number"] == copy_number
+
+    response = client.get(f"{API}/applications/{application_id}/documents")
+    assert response.status_code == 200, response.text
+    copies = {item["copy_number"] for item in response.json()["items"]}
+    assert copies == {1, 2, 3}
+
+
+def test_upload_exceeds_copy_cap_rejected(client):
+    application_id = create_application(client)
+    for copy_number in (1, 2, 3):
+        assert (
+            upload(
+                client,
+                application_id,
+                document_type="TRIPARTITE_AGREEMENT",
+                copy_number=copy_number,
+            ).status_code
+            == 201
+        )
+    response = upload(
+        client,
+        application_id,
+        document_type="TRIPARTITE_AGREEMENT",
+        copy_number=4,
+    )
+
+    assert response.status_code == 409, response.text
+    assert "Cannot upload more than 3 copies" in response.json()["detail"]
+
+
+def test_upload_copy_slot_already_occupied(client):
+    application_id = create_application(client)
+    assert upload(client, application_id, copy_number=2).status_code == 201
+    response = upload(client, application_id, filename="scan2.pdf", copy_number=2)
+
+    assert response.status_code == 409, response.text
+    assert "Copy 2 of TRIPARTITE_AGREEMENT already exists" in response.json()["detail"]
+
+
+def test_upload_single_copy_type_limit(client):
+    application_id = create_application(client)
+    assert (
+        upload(
+            client,
+            application_id,
+            document_type="AUTHORITY_LETTER",
+            copy_number=1,
+        ).status_code
+        == 201
+    )
+    response = upload(
+        client,
+        application_id,
+        document_type="AUTHORITY_LETTER",
+        copy_number=2,
+    )
+
+    assert response.status_code == 409, response.text
+    assert "Cannot upload more than 1 copy" in response.json()["detail"]
 
 
 def test_upload_missing_application(client):

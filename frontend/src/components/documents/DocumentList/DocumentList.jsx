@@ -1,50 +1,54 @@
+import { useRef } from 'react';
 import { ClipboardList } from 'lucide-react';
 
 import DocumentRow from '../DocumentRow/DocumentRow';
+import { validateUploadFile } from '../../../data/documents';
 import styles from './DocumentList.module.css';
 
 /**
- * Grouped list of required and supporting documents for an application.
+ * Fixed slot checklist for an application's required documents.
  *
- * Resolves the per-row upload state from the fetched documents and any
- * in-flight uploads, then delegates rendering to DocumentRow.
+ * Each required category renders its exact number of numbered slots
+ * (Copy 1 … Copy N). Empty slots stay visible with an Upload action; occupied
+ * slots offer Download, Replace and Delete. A category header shows its copy
+ * progress (e.g. "1-Link Application Form · 2/3").
  *
  * @param {object} props
  * @param {Array<object>} props.requiredTypes Required document catalogue entries.
- * @param {Array<object>} props.supportingTypes Supporting catalogue entries.
- * @param {Function} props.findDocument Lookup document metadata by type.
- * @param {object} props.pending Map of type to in-flight upload state.
- * @param {Function} props.onUpload Handler for uploading a missing document.
- * @param {Function} props.onReplace Handler for replacing an existing document.
+ * @param {Function} props.findDocument Lookup document metadata by type + copy.
+ * @param {object} props.pending Map of slot key to in-flight upload state.
+ * @param {Function} props.onUpload Handler for uploading into a slot.
  * @param {Function} props.onDelete Handler for deleting an existing document.
  */
 function DocumentList({
   requiredTypes,
-  supportingTypes,
   findDocument,
   pending,
   onUpload,
-  onReplace,
   onDelete,
 }) {
-  const renderGroup = (title, entries) => (
-    <section className={styles.group}>
-      <h4 className={styles.groupTitle}>{title}</h4>
-      <ul className={styles.list}>
-        {entries.map((entry) => (
-          <DocumentRow
-            key={entry.type}
-            entry={entry}
-            document={findDocument(entry.type)}
-            pending={pending[entry.type] ?? null}
-            onUpload={() => onUpload(entry.type)}
-            onReplace={() => onReplace(entry.type)}
-            onDelete={() => onDelete(entry.type)}
-          />
-        ))}
-      </ul>
-    </section>
-  );
+  const fileInputs = useRef({});
+
+  const triggerPicker = (type, copyNumber) => {
+    const input = fileInputs.current[`${type}-${copyNumber}`];
+    if (input) {
+      input.value = '';
+      input.click();
+    }
+  };
+
+  const handleFile = async (type, copyNumber, event) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
+    }
+    const validationError = validateUploadFile(file);
+    if (validationError) {
+      onUpload(type, copyNumber, null, validationError);
+      return;
+    }
+    onUpload(type, copyNumber, file, null);
+  };
 
   return (
     <div className={styles.container}>
@@ -54,11 +58,61 @@ function DocumentList({
         </div>
         <div>
           <h3 className={styles.title}>Document Checklist</h3>
-          <p className={styles.subtitle}>Select a document, then upload a file below.</p>
+          <p className={styles.subtitle}>
+            Upload each required copy. Every slot accepts a single file.
+          </p>
         </div>
       </div>
-      {renderGroup('Required Documents', requiredTypes)}
-      {renderGroup('Supporting Documents', supportingTypes)}
+
+      <div className={styles.groups}>
+        {requiredTypes.map((entry) => {
+          const present = Array.from({ length: entry.requiredCopies }, (_, index) => {
+            const copyNumber = index + 1;
+            return findDocument(entry.type, copyNumber);
+          }).filter(Boolean).length;
+          return (
+            <section key={entry.type} className={styles.group}>
+              <div className={styles.groupHeader}>
+                <h4 className={styles.groupTitle}>{entry.label}</h4>
+                <span className={styles.groupCount}>
+                  {present} / {entry.requiredCopies}
+                </span>
+              </div>
+              <ul className={styles.grid}>
+                {Array.from({ length: entry.requiredCopies }, (_, index) => {
+                  const copyNumber = index + 1;
+                  const slotKey = `${entry.type}-${copyNumber}`;
+                  const document = findDocument(entry.type, copyNumber);
+                  const slotPending =
+                    pending[`upload-${slotKey}`] ?? (document ? pending[`replace-${document.id}`] : null);
+                  return (
+                    <li key={copyNumber}>
+                      <DocumentRow
+                        entry={{ ...entry, label: `Copy ${copyNumber}` }}
+                        document={document}
+                        pending={slotPending}
+                        onUpload={() => triggerPicker(entry.type, copyNumber)}
+                        onReplace={() => triggerPicker(entry.type, copyNumber)}
+                        onDelete={() => document && onDelete(document)}
+                      />
+                      <input
+                        ref={(node) => {
+                          fileInputs.current[slotKey] = node;
+                        }}
+                        type="file"
+                        accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.tif,.tiff"
+                        hidden
+                        tabIndex={-1}
+                        onChange={(event) => handleFile(entry.type, copyNumber, event)}
+                      />
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+          );
+        })}
+      </div>
     </div>
   );
 }

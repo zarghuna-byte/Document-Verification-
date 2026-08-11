@@ -196,6 +196,10 @@ def upload_document(
     application_id: int,
     file: Annotated[UploadFile | None, File(description="The document file.")] = None,
     document_type: Annotated[DocumentType, Form(description="Category of the document.")] = ...,
+    copy_number: Annotated[
+        int | None,
+        Form(ge=1, description="1-based copy slot within the type (defaults to 1)."),
+    ] = None,
     db: _GET_DB = ...,
 ) -> DocumentUploadResponse:
     """Upload a document for an application.
@@ -204,6 +208,9 @@ def upload_document(
         application_id: Id of the owning application.
         file: Multipart file payload.
         document_type: Document category (multipart form field).
+        copy_number: Optional 1-based copy slot for this document within the
+            type. When omitted the upload targets the first available slot,
+            which the service treats as copy 1.
         db: Active database session.
 
     Returns:
@@ -217,6 +224,7 @@ def upload_document(
     document = _service(db).upload(
         application_id=application_id,
         document_type=document_type,
+        copy_number=copy_number or 1,
         filename=file.filename or "",
         content_type=file.content_type or "",
         file=file.file,

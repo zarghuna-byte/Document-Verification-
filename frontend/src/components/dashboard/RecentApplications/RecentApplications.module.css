@@ -41,15 +41,24 @@
   list-style: none;
 }
 
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
 .row {
   display: flex;
   align-items: center;
   gap: 12px;
+  width: 100%;
   padding: 12px 14px;
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border);
   background: var(--color-bg);
-  text-decoration: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
   transition: border-color var(--transition), box-shadow var(--transition);
 }
 
@@ -137,6 +146,82 @@
 .createBtn svg {
   width: 18px;
   height: 18px;
+}
+
+.checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 14px 14px;
+  border: 1px solid var(--color-border);
+  border-top: none;
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  background: var(--color-card);
+}
+
+.progressRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.progressText {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.progressPercent {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.progressTrack {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--color-border);
+  overflow: hidden;
+}
+
+.progressBar {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--color-primary);
+  transition: width var(--transition);
+}
+
+.checklistList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.checklistRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.checklistLabel {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.checklistCount {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  white-space: nowrap;
 }
 
 @media (max-width: 767px) {

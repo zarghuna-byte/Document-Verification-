@@ -26,6 +26,7 @@ class DocumentMetadata(BaseModel):
     id: int
     application_id: int
     document_type: DocumentType
+    copy_number: int
     original_filename: str
     file_type: str
     uploaded_at: datetime
