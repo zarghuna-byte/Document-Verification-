@@ -36,11 +36,12 @@ JPEG_BYTES = b"\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x00\x00\x01\x00\x01\x00\
 
 
 def _wipe_database() -> None:
-    """Delete every application and user; dependent tables cascade."""
+    """Delete every application, user and audit record; dependents cascade."""
     db = SessionLocal()
     try:
         db.execute(text("DELETE FROM refresh_tokens"))
         db.execute(text("DELETE FROM users"))
+        db.execute(text("DELETE FROM audit_logs"))
         db.execute(text("DELETE FROM applications"))
         db.commit()
     finally:

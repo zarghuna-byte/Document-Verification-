@@ -9,6 +9,7 @@ does not need to change when new endpoints are added.
 from fastapi import APIRouter
 
 from app.api.health import router as health_router
+from app.audit.routes import router as audit_router
 from app.auth.routes import router as auth_router
 from app.completeness.routes import router as completeness_router
 from app.confidence.routes import router as confidence_router
@@ -26,6 +27,7 @@ from app.upload.routes import router as upload_router
 api_router = APIRouter()
 api_router.include_router(health_router)
 api_router.include_router(auth_router)
+api_router.include_router(audit_router)
 api_router.include_router(upload_router)
 api_router.include_router(completeness_router)
 api_router.include_router(technical_validation_router)
