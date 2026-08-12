@@ -1,20 +1,17 @@
-import EmptyState from '../../common/EmptyState/EmptyState';
+import ActivityFeed from '../../activity/ActivityFeed/ActivityFeed';
 import styles from './RecentActivity.module.css';
 
 /**
  * Recent Activity dashboard section.
  *
- * Displays a static empty state; activity records will come from the backend
- * integration in a later phase and are never fabricated here.
+ * Renders the stored audit log through the shared activity feed. No activity
+ * is ever fabricated: an empty log shows an empty state.
  */
 function RecentActivity() {
   return (
     <section className={styles.card} aria-label="Recent activity">
       <h3 className={styles.title}>Recent Activity</h3>
-      <EmptyState
-        title="No recent activity"
-        message="Activity will appear here as applications are processed."
-      />
+      <ActivityFeed limit={8} />
     </section>
   );
 }

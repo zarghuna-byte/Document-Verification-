@@ -106,7 +106,7 @@ function UploadDocumentsPage() {
           <SummaryPanel
             documents={documents}
             sessionTally={sessionTally}
-            onContinue={() => navigate('/completeness')}
+            onContinue={() => navigate(`/applications/${applicationId}/completeness`)}
           />
         </div>
       )}

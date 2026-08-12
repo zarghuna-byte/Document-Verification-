@@ -76,10 +76,11 @@ export const ADMIN_NAV_ITEMS = NAV_ITEMS.flatMap((item) => item.children ?? []);
 
 /**
  * Internal routes that stay reachable (for future application-level workflow
- * screens and testing) but are not exposed in the sidebar.
+ * screens and testing) but are not exposed in the sidebar. The Document
+ * Completeness screen lives at "/applications/:id/completeness" and is reached
+ * from the application flow, so it is not listed here.
  */
 export const INTERNAL_ROUTES = [
-  { id: 'completeness', label: 'Document Completeness', path: '/completeness' },
   { id: 'technical-validation', label: 'Technical Validation', path: '/technical-validation' },
   { id: 'processing', label: 'Document Processing', path: '/processing' },
   { id: 'extraction', label: 'Field Extraction', path: '/extraction' },

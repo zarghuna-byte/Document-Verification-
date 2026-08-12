@@ -96,6 +96,7 @@
   font-size: 15px;
   font-weight: 600;
   transition: background-color var(--transition);
+  text-decoration: none;
 }
 
 .primaryBtn {
@@ -123,52 +124,20 @@
   height: 18px;
 }
 
-.placeholders {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-}
-
-@media (max-width: 767px) {
-  .placeholders {
-    grid-template-columns: 1fr;
-  }
-}
-
-.placeholder {
+.activityCard {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 24px;
+  gap: 14px;
+  padding: 24px 28px;
   background: var(--color-card);
-  border: 1px dashed var(--color-border);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
 }
 
-.placeholderIcon {
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-md);
-  background: var(--color-surface-secondary);
-  color: var(--color-text-muted);
-}
-
-.placeholderIcon svg {
-  width: 20px;
-  height: 20px;
-}
-
-.placeholderTitle {
+.activityTitle {
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--color-text);
-}
-
-.placeholderMessage {
-  font-size: 13px;
-  line-height: 1.5;
-  color: var(--color-text-muted);
+  margin: 0;
 }
